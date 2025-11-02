@@ -84,6 +84,20 @@ h1 {
 .navbar-toggler {
     margin-left: auto;
 }
+
+/* Navbar collapse en móvil */
+@media (max-width: 992px) {
+  .navbar-collapse {
+    background-color: #141e28;
+    padding: 20px;
+    margin-top: 10px;
+    border-radius: 8px;
+  }
+  
+  .nav-item {
+    margin: 10px 0;
+  }
+}
 /* Hero styles*/
 
 .hero-section {
