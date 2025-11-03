@@ -569,7 +569,7 @@ body {
 }
 
 /* Tablets (1006px - 1356px) - iPad */
-@media screen and (min-width: 1008px) and (max-width: 1373px) {
+@media screen and (min-width: 857px) and (max-width: 1373px) {
   /* Hero */
   .hero-title {
     font-size: 7.5rem;
