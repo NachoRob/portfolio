@@ -344,6 +344,8 @@ h1 {
   padding: 20px 25px;
 }
 
+
+
 .accordion-button:not(.collapsed) {
   background-color: #916dd0;
   color: white;
@@ -454,6 +456,23 @@ h1 {
     min-height: auto; /* quita altura fija */
   }
 }
+
+@media (min-width: 769px) and (max-width: 991px) {
+  .title-with-icon {
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  
+  .title-with-icon h3 {
+    font-size: 1.75rem;
+  }
+  
+  .title-with-icon i {
+    font-size: 2rem;
+  }
+}
+
 /* contact */
 
 .contact-section {
