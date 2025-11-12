@@ -72,7 +72,7 @@ Este proyecto está en constante evolución. Si tienes sugerencias, ideas o encu
 **Ignacio Robles**
 
 - GitHub: [@NachoRob](https://github.com/NachoRob)
-- LinkedIn: [Tu LinkedIn]
+- LinkedIn: www.linkedin.com/in/ignacioroblesr
 - Email: ignaciorob86@gmail.com
 
 ## 📝 Licencia
