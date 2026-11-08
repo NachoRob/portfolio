@@ -4,7 +4,7 @@ summary: 'Sitio en producción para un hotel y guardería de mascotas en Santiag
 category: web
 year: 2026
 featured: true
-order: 4
+order: 5
 stack: [Astro, Sanity CMS, Firebase Hosting]
 demo: https://colitas-social-club.web.app/
 context: Proyecto independiente · diseño y desarrollo end-to-end

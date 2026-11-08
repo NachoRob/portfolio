@@ -47,6 +47,11 @@ const articles = defineCollection({
     topic: z.enum(['ai-engineering', 'agentes', 'backend', 'google-cloud', 'aeo']),
     tags: z.array(z.string()).default([]),
     draft: z.boolean().default(true),
+    /** Artículo publicado en otra plataforma: la tarjeta enlaza a esta URL. */
+    url: z.url().optional(),
+    /** Dónde vive el artículo. `propio` = escrito en este sitio. */
+    source: z.enum(['propio', 'medium', 'd2b', 'devto']).default('propio'),
+    lang: z.enum(['es', 'en']).default('es'),
   }),
 });
 
