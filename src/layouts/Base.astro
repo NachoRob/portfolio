@@ -1,0 +1,156 @@
+---
+import '@fontsource-variable/inter/wght.css';
+import '@fontsource-variable/montserrat/wght.css';
+import '@fontsource-variable/jetbrains-mono/wght.css';
+import '@/styles/global.css';
+
+import interLatin from '@fontsource-variable/inter/files/inter-latin-wght-normal.woff2?url';
+import montserratLatin from '@fontsource-variable/montserrat/files/montserrat-latin-wght-normal.woff2?url';
+
+import Navbar from '@/components/Navbar.astro';
+import Footer from '@/components/Footer.astro';
+import { site, socials } from '@/data/site';
+import { href } from '@/lib/url';
+import { getImage } from 'astro:assets';
+import nacho from '@/assets/nacho.png';
+
+interface Props {
+  title?: string;
+  description?: string;
+  ogType?: 'website' | 'article';
+  /** Datos estructurados adicionales (JSON-LD) específicos de la página. */
+  jsonLd?: Record<string, unknown>[];
+  noindex?: boolean;
+}
+
+const {
+  title = site.title,
+  description = site.description,
+  ogType = 'website',
+  jsonLd = [],
+  noindex = false,
+} = Astro.props;
+
+const canonical = new URL(Astro.url.pathname, Astro.site).href;
+const homeUrl = new URL(href(), Astro.site).href;
+
+// PENDIENTE: imagen OG dedicada 1200×630. Mientras tanto se usa la fotografía.
+const ogImage = await getImage({ src: nacho, width: 800, format: 'jpeg', background: '#0b1f3a' });
+const ogImageUrl = new URL(ogImage.src, Astro.site).href;
+
+const person = {
+  '@type': 'Person',
+  '@id': `${homeUrl}#person`,
+  name: site.name,
+  alternateName: [site.brand, site.shortName],
+  url: homeUrl,
+  image: ogImageUrl,
+  jobTitle: site.roles.join(', '),
+  worksFor: { '@type': 'Organization', name: 'D2B Inteligencia Digital', url: 'https://d2b.cl/' },
+  address: { '@type': 'PostalAddress', addressCountry: 'CL' },
+  knowsAbout: [
+    'AI Engineering',
+    'Agentes de IA',
+    'Retrieval-Augmented Generation',
+    'Google Cloud Platform',
+    'BigQuery',
+    'Machine Learning',
+    'TypeScript',
+    'React',
+    'Node.js',
+    'Python',
+  ],
+  sameAs: socials.filter((s) => s.icon !== 'mail').map((s) => s.href),
+};
+
+const graph = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    person,
+    {
+      '@type': 'WebSite',
+      '@id': `${homeUrl}#website`,
+      url: homeUrl,
+      name: site.brand,
+      inLanguage: 'es',
+      author: { '@id': `${homeUrl}#person` },
+    },
+    ...jsonLd,
+  ],
+};
+---
+
+<!doctype html>
+<html lang={site.lang}>
+  <head>
+    <meta charset="utf-8" />
+    <script is:inline>
+      // Modo claro/oscuro antes del primer pintado: preferencia guardada o la del sistema.
+      (function () {
+        var t;
+        try {
+          t = localStorage.getItem('theme');
+        } catch (e) {}
+        if (t !== 'light' && t !== 'dark') t = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        document.documentElement.dataset.theme = t;
+      })();
+    </script>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    {noindex && <meta name="robots" content="noindex" />}
+    <meta name="author" content={site.name} />
+    <meta name="theme-color" content="#0b1f3a" />
+    <meta name="color-scheme" content="light dark" />
+    <link rel="icon" href={href('favicon.svg')} type="image/svg+xml" />
+    <link rel="sitemap" href={href('sitemap-index.xml')} />
+
+    <link rel="preload" href={montserratLatin} as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href={interLatin} as="font" type="font/woff2" crossorigin />
+
+    <meta property="og:type" content={ogType} />
+    <meta property="og:site_name" content={site.brand} />
+    <meta property="og:locale" content={site.locale} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogImageUrl} />
+    <meta property="og:image:alt" content={`Fotografía de ${site.name}`} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImageUrl} />
+
+    <script type="application/ld+json" set:html={JSON.stringify(graph)} />
+  </head>
+  <body>
+    <a href="#contenido" class="skip">Saltar al contenido</a>
+    <Navbar />
+    <main id="contenido" tabindex="-1">
+      <slot />
+    </main>
+    <Footer />
+  </body>
+</html>
+
+<style>
+  .skip {
+    position: fixed;
+    top: 0.75rem;
+    left: 0.75rem;
+    z-index: 100;
+    padding: 0.5rem 1rem;
+    border-radius: var(--radius);
+    background: var(--brand);
+    color: var(--on-brand);
+    font-weight: 600;
+    transform: translateY(-200%);
+  }
+  .skip:focus {
+    transform: none;
+  }
+  main {
+    outline: none;
+  }
+</style>

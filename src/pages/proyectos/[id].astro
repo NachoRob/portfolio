@@ -1,0 +1,253 @@
+---
+import type { GetStaticPaths } from 'astro';
+import { getCollection, render, type CollectionEntry } from 'astro:content';
+import { Image } from 'astro:assets';
+import Base from '@/layouts/Base.astro';
+import Button from '@/components/ui/Button.astro';
+import Icon from '@/components/ui/Icon.astro';
+import FlowDiagram from '@/components/ui/FlowDiagram.astro';
+import { categories } from '@/lib/taxonomy';
+import { href } from '@/lib/url';
+import { site } from '@/data/site';
+
+export const getStaticPaths = (async () => {
+  const projects = (await getCollection('projects')).sort((a, b) => a.data.order - b.data.order);
+  return projects.map((project, i) => ({
+    params: { id: project.id },
+    props: { project, next: projects[(i + 1) % projects.length]! },
+  }));
+}) satisfies GetStaticPaths;
+
+interface Props {
+  project: CollectionEntry<'projects'>;
+  next: CollectionEntry<'projects'>;
+}
+
+const { project, next } = Astro.props;
+const { data } = project;
+const { Content } = await render(project);
+const cat = categories[data.category];
+const pageUrl = new URL(Astro.url.pathname, Astro.site).href;
+const homeUrl = new URL(href(), Astro.site).href;
+
+const jsonLd = [
+  {
+    '@type': data.repo ? 'SoftwareSourceCode' : 'CreativeWork',
+    '@id': `${pageUrl}#project`,
+    name: data.title,
+    description: data.summary,
+    url: pageUrl,
+    inLanguage: 'es',
+    author: { '@id': `${homeUrl}#person` },
+    keywords: data.stack.join(', '),
+    ...(data.year ? { dateCreated: String(data.year) } : {}),
+    ...(data.repo ? { codeRepository: data.repo } : {}),
+  },
+  {
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: site.brand, item: homeUrl },
+      { '@type': 'ListItem', position: 2, name: 'Proyectos', item: `${homeUrl}#proyectos` },
+      { '@type': 'ListItem', position: 3, name: data.title, item: pageUrl },
+    ],
+  },
+];
+---
+
+<Base title={`${data.title} — Caso de estudio · ${site.brand}`} description={data.summary} ogType="article" jsonLd={jsonLd}>
+  <article class="page">
+    <nav aria-label="Ruta" class="crumbs mono">
+      <ol>
+        <li><a href={href()}>inicio</a></li>
+        <li aria-hidden="true">/</li>
+        <li><a href={`${href()}#proyectos`}>proyectos</a></li>
+        <li aria-hidden="true">/</li>
+        <li aria-current="page">{project.id}</li>
+      </ol>
+    </nav>
+
+    <header>
+      <p class="meta mono">
+        {[cat.label, data.year, data.context].filter(Boolean).join(' · ')}
+      </p>
+      <h1>{data.title}</h1>
+      <p class="lead">{data.summary}</p>
+      <div class="ctas">
+        {
+          data.demo && (
+            <Button href={data.demo} external>
+              <Icon name="arrow-up-right" size={18} />
+              Ver sitio
+            </Button>
+          )
+        }
+        {
+          data.repo ? (
+            <Button href={data.repo} variant={data.demo ? 'secondary' : 'primary'} external>
+              <Icon name="github" size={18} />
+              Ver código
+            </Button>
+          ) : (
+            <Button disabled>Código privado</Button>
+          )
+        }
+      </div>
+    </header>
+
+    <dl class="sheet">
+      <div>
+        <dt>Stack</dt>
+        <dd class="stack-list">{data.stack.join(' · ')}</dd>
+      </div>
+      {
+        data.metrics && (
+          <div>
+            <dt>En cifras</dt>
+            <dd class="metrics">
+              {data.metrics.map((m) => (
+                <span>
+                  <strong>{m.value}</strong> {m.label}
+                </span>
+              ))}
+            </dd>
+          </div>
+        )
+      }
+    </dl>
+
+    {
+      data.cover && (
+        <figure class="cover">
+          <Image
+            src={data.cover}
+            alt={data.coverAlt ?? ''}
+            widths={[480, 736, 1100, 1472]}
+            sizes="(min-width: 48rem) 46rem, 92vw"
+          />
+        </figure>
+      )
+    }
+
+    {
+      data.flow && (
+        <div class="flow">
+          <FlowDiagram title="Arquitectura" steps={data.flow} />
+        </div>
+      )
+    }
+
+    <div class="prose">
+      <Content />
+    </div>
+
+    <nav aria-label="Siguiente proyecto" class="next">
+      <a href={href(`proyectos/${next.id}/`)} class="row-link">
+        <span class="body">
+          <span class="row-text">Siguiente caso</span>
+          <span class="row-title">{next.data.title}</span>
+        </span>
+        <Icon name="arrow-right" size={20} />
+      </a>
+    </nav>
+  </article>
+</Base>
+
+<style>
+  article {
+    padding-top: 2rem;
+  }
+  .crumbs ol {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    font-size: var(--text-micro);
+    color: var(--fg-muted);
+  }
+  .crumbs a:hover {
+    color: var(--fg);
+  }
+  .crumbs [aria-current] {
+    color: var(--fg-secondary);
+  }
+  header {
+    margin-top: 2rem;
+  }
+  .meta {
+    font-size: var(--text-micro);
+    color: var(--link);
+  }
+  h1 {
+    margin-top: 0.5rem;
+    font-size: var(--text-h1);
+    font-weight: 800;
+  }
+  .lead {
+    margin-top: 1rem;
+    font-size: var(--text-lead);
+    color: var(--fg-secondary);
+  }
+  .ctas {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-top: 1.75rem;
+  }
+  .sheet {
+    display: grid;
+    gap: 1rem;
+    margin-top: 2.25rem;
+    padding: 1.125rem 1.25rem;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-left: 3px solid var(--brand);
+    border-radius: var(--radius);
+  }
+  dt {
+    font-family: var(--font-mono);
+    font-size: var(--text-micro);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--fg-muted);
+  }
+  dd {
+    margin-top: 0.35rem;
+  }
+  .sheet .stack-list {
+    font-size: var(--text-small);
+    color: var(--fg-secondary);
+  }
+  .metrics {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem 1.5rem;
+    font-size: var(--text-small);
+    color: var(--fg-secondary);
+  }
+  .metrics strong {
+    font-family: var(--font-display);
+    font-size: 1.25rem;
+    color: var(--fg);
+  }
+  .cover {
+    margin-top: 2rem;
+    overflow: hidden;
+    border: 1px solid var(--line-strong);
+    border-radius: var(--radius);
+  }
+  .flow {
+    margin-top: 2rem;
+  }
+  .prose {
+    margin-top: 2.5rem;
+  }
+  .next {
+    margin-top: 3.5rem;
+  }
+  .next .body {
+    flex: 1;
+  }
+  .next .row-title {
+    font-family: var(--font-display);
+    font-size: var(--text-h3);
+  }
+</style>

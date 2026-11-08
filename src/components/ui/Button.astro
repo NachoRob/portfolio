@@ -1,0 +1,87 @@
+---
+/**
+ * Botón / enlace plano con sombra sólida.
+ * primary   → fondo --blue, texto blanco (5.17:1). Hover #1D4ED8 (6.7:1). Pressed #1E40AF.
+ * secondary → fondo surface, borde line-strong, texto fg.
+ * disabled  → borde discontinuo + texto atenuado + aria-disabled (no depende solo del color).
+ */
+import type { HTMLAttributes } from 'astro/types';
+
+interface Props extends Omit<HTMLAttributes<'a'>, 'class'> {
+  variant?: 'primary' | 'secondary';
+  href?: string;
+  disabled?: boolean;
+  external?: boolean;
+}
+
+const { variant = 'primary', href, disabled = false, external = false, ...rest } = Astro.props;
+const ext = external ? { target: '_blank', rel: 'noopener noreferrer' } : {};
+---
+
+{
+  disabled || !href ? (
+    <span class="btn disabled" aria-disabled="true" role="link" {...rest}>
+      <slot />
+    </span>
+  ) : (
+    <a href={href} class:list={['btn', variant]} {...ext} {...rest}>
+      <slot />
+      {external && <span class="sr-only">(se abre en una pestaña nueva)</span>}
+    </a>
+  )
+}
+
+<style>
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    min-height: 2.75rem;
+    padding: 0.5rem 1.125rem;
+    border: 1px solid transparent;
+    border-radius: var(--radius);
+    font-weight: 600;
+    font-size: var(--text-body);
+    white-space: nowrap;
+    user-select: none;
+    transition:
+      transform 0.15s ease,
+      box-shadow 0.15s ease,
+      background-color 0.15s ease,
+      border-color 0.15s ease;
+  }
+  .primary {
+    background: var(--brand);
+    color: var(--on-brand);
+    box-shadow: var(--offset) var(--offset) 0 var(--solid-shadow);
+  }
+  .primary:hover {
+    background: var(--brand-hover);
+  }
+  .secondary {
+    background: var(--surface);
+    border-color: var(--fg);
+    color: var(--fg);
+    box-shadow: var(--offset) var(--offset) 0 var(--solid-shadow);
+  }
+  .secondary:hover {
+    border-color: var(--brand);
+    color: var(--link);
+    box-shadow: var(--offset) var(--offset) 0 var(--brand);
+  }
+  .primary:active,
+  .secondary:active {
+    transform: translate(var(--offset), var(--offset));
+    box-shadow: none;
+  }
+  .primary:active {
+    background: var(--brand-pressed);
+  }
+  .disabled {
+    cursor: not-allowed;
+    border: 1px dashed var(--line-strong);
+    background: var(--surface);
+    color: var(--fg-muted);
+  }
+</style>

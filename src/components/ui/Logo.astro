@@ -1,0 +1,37 @@
+---
+/**
+ * Wordmark temporal Nacho<Dev/> en Montserrat.
+ * `onDark` para usarlo sobre fondo navy (barra superior y footer).
+ * El logo antiguo (src/assets/brand/legacy-logo.png) usa la paleta anterior
+ * y no se usa. Reemplazar este componente cuando exista el logo definitivo.
+ */
+interface Props {
+  onDark?: boolean;
+}
+const { onDark = false } = Astro.props;
+---
+
+<span class:list={['logo', { dark: onDark }]}><span>Nacho</span><span class="b" aria-hidden="true">&lt;</span><span
+    class="b">Dev</span
+  ><span class="b" aria-hidden="true">/&gt;</span></span
+>
+
+<style>
+  .logo {
+    font-family: var(--font-display);
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    line-height: 1;
+    color: var(--fg);
+    white-space: nowrap;
+  }
+  .b {
+    color: var(--brand);
+  }
+  .dark {
+    color: var(--on-navy);
+  }
+  .dark .b {
+    color: var(--on-navy-accent);
+  }
+</style>

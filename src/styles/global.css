@@ -1,0 +1,435 @@
+/* ──────────────────────────────────────────────────────────────
+   NachoDev Design System v1.0
+   Tokens como variables CSS: única fuente de verdad.
+   Los componentes Astro usan estos tokens en sus <style> locales.
+   No escribir valores HEX fuera de este archivo.
+   ────────────────────────────────────────────────────────────── */
+
+:root {
+  /* ── Paleta de marca NachoDev ── */
+  --navy: #0b1f3a; /* Principal */
+  --blue: #2563eb; /* Secundario */
+  --sky: #60a5fa; /* Acento */
+  --white: #ffffff;
+  --gray-50: #f3f4f6; /* Fondo alternativo */
+  --gray-700: #374151; /* Texto secundario */
+
+  /* ── Roles comunes a ambos modos ── */
+  --brand: var(--blue); /* botones, subrayados, bordes de acento */
+  --brand-hover: #1d4ed8; /* derivado: hover del botón (blanco 6.7:1) */
+  --brand-pressed: #1e40af;
+  --ambient: var(--sky);
+  --on-brand: var(--white);
+
+  /* Barra superior y footer: siempre navy */
+  --on-navy: var(--white);
+  --on-navy-secondary: #d6e2f3; /* derivado: 13:1 sobre navy */
+  --on-navy-accent: var(--sky); /* 6.4:1 sobre navy */
+
+  /* Tiles de color (proyectos y contacto): solo colores de la paleta.
+     Cada fondo lleva el color de texto que le da contraste AA. */
+  --tile-ai-bg: var(--blue); /* IA → azul, texto blanco 5.17:1 */
+  --tile-ai-fg: var(--white);
+  --tile-data-bg: var(--sky); /* Datos → celeste, texto navy 6.5:1 */
+  --tile-data-fg: var(--navy);
+  --tile-web-bg: var(--navy); /* Web → navy, texto blanco 16:1 */
+  --tile-web-fg: var(--white);
+  --tile-fullstack-bg: var(--white); /* Full-stack → blanco, texto navy 16:1 */
+  --tile-fullstack-fg: var(--navy);
+  --tile-contact-bg: var(--blue); /* Contacto → azul, texto blanco */
+  --tile-contact-fg: var(--white);
+}
+
+/* ── Modo claro ── */
+:root,
+:root[data-theme='light'] {
+  --canvas: var(--gray-50);
+  --surface: var(--white);
+  --elevated: #e8effc; /* derivado: tinte de --blue */
+  --line: #e5e7eb;
+  --line-strong: #cbd5e1;
+  --fg: var(--navy); /* 16:1 sobre blanco */
+  --fg-secondary: var(--gray-700); /* 9.4:1 sobre #F3F4F6 */
+  --fg-muted: #4b5563; /* derivado: 7.6:1 sobre blanco */
+  --link: #1d4ed8; /* 6.7:1 */
+  --focus: var(--blue);
+  --solid-shadow: var(--navy); /* sombra desplazada de botones y tarjetas */
+  --dot: rgb(11 31 58 / 0.09);
+  --bar-border: transparent;
+  color-scheme: light;
+}
+
+/* ── Modo oscuro ── */
+:root[data-theme='dark'] {
+  --canvas: var(--navy);
+  --surface: #132a4a; /* derivado: navy un paso más claro */
+  --elevated: #1b3863;
+  --line: #1f3a62;
+  --line-strong: #2c4f80;
+  --fg: var(--white);
+  --fg-secondary: #d6e2f3; /* 11:1 sobre surface */
+  --fg-muted: #a9bcd6; /* 7.5:1 sobre surface */
+  --link: var(--sky); /* 5.7:1 sobre surface */
+  --focus: var(--sky);
+  --solid-shadow: var(--white);
+  --dot: rgb(255 255 255 / 0.07);
+  --bar-border: #1f3a62;
+  color-scheme: dark;
+}
+
+:root {
+  /* Tipografía */
+  --font-display: 'Montserrat Variable', 'Montserrat', ui-sans-serif, system-ui, sans-serif;
+  --font-sans: 'Inter Variable', 'Inter', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono Variable', 'JetBrains Mono', ui-monospace, 'SFMono-Regular', monospace;
+
+  --text-h1: clamp(2rem, 1.6rem + 1.8vw, 2.75rem);
+  --text-h2: clamp(1.375rem, 1.25rem + 0.6vw, 1.75rem);
+  --text-h3: 1.125rem;
+  --text-lead: 1.125rem;
+  --text-body: 1rem;
+  --text-small: 0.875rem;
+  --text-micro: 0.75rem;
+
+  /* Forma */
+  --radius: 0.375rem;
+  --radius-lg: 0.625rem;
+  --offset: 4px; /* sombra sólida desplazada */
+
+  /* Ritmo */
+  --page: 46rem; /* columna de lectura */
+  --page-wide: 64rem; /* barra superior */
+  --gutter: clamp(1rem, 0.5rem + 2.5vw, 1.5rem);
+  --section-gap: clamp(3.5rem, 2.5rem + 4vw, 5.5rem);
+  --nav-h: 3.75rem;
+
+}
+
+/* ── Reset mínimo ───────────────────────────────────────────── */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+* {
+  margin: 0;
+}
+img,
+svg {
+  display: block;
+  max-width: 100%;
+}
+img {
+  height: auto;
+}
+ul,
+ol {
+  padding: 0;
+  list-style: none;
+}
+a {
+  color: inherit;
+  text-decoration: none;
+}
+button {
+  font: inherit;
+  color: inherit;
+}
+
+/* ── Base ───────────────────────────────────────────────────── */
+html {
+  background-color: var(--canvas);
+  color: var(--fg);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  scroll-padding-top: calc(var(--nav-h) + 1.5rem);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+body {
+  min-height: 100dvh;
+  font-size: var(--text-body);
+  line-height: 1.65;
+  overflow-x: clip;
+  /* Retícula de puntos: fondo técnico discreto, sin degradados de luz. */
+  background-color: var(--canvas);
+  background-image: radial-gradient(var(--dot) 1px, transparent 1px);
+  background-size: 24px 24px;
+  background-attachment: fixed;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--font-display);
+  color: var(--fg);
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+}
+
+p {
+  text-wrap: pretty;
+}
+
+::selection {
+  background: rgb(37 99 235 / 0.2);
+  color: var(--fg);
+}
+
+:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 3px;
+  border-radius: var(--radius);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ── Utilidades compartidas ─────────────────────────────────── */
+.page {
+  width: 100%;
+  max-width: calc(var(--page) + 2 * var(--gutter));
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.mono {
+  font-family: var(--font-mono);
+}
+
+.muted {
+  color: var(--fg-muted);
+}
+
+/* Fila-enlace: el bloque base del sitio (redes, proyectos, contacto).
+   Plana, con borde; al pasar el cursor se levanta con una sombra sólida. */
+.row-link {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.875rem 1rem;
+  background: var(--surface);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius);
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease,
+    border-color 0.15s ease;
+}
+.row-link:hover,
+.row-link:focus-visible {
+  border-color: var(--brand);
+  transform: translate(calc(var(--offset) * -0.5), calc(var(--offset) * -0.5));
+  box-shadow: var(--offset) var(--offset) 0 var(--brand);
+}
+.row-link:active {
+  transform: none;
+  box-shadow: none;
+}
+
+.row-icon {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: var(--radius);
+  background: var(--elevated);
+  color: var(--link);
+}
+
+.row-title {
+  display: block;
+  font-weight: 600;
+  color: var(--fg);
+  line-height: 1.35;
+}
+.row-text {
+  display: block;
+  font-size: var(--text-small);
+  color: var(--fg-secondary);
+  line-height: 1.5;
+}
+
+.stack-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 0.75rem;
+  font-family: var(--font-mono);
+  font-size: var(--text-micro);
+  color: var(--fg-muted);
+}
+
+/* Tile de color estilo «link-in-bio»: plano, color sólido, texto navy y sombra
+   sólida desplazada siempre visible (blanca en oscuro, navy en claro). */
+.tile {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.875rem 1.125rem;
+  background: var(--tile-bg, var(--tile-contact-bg));
+  color: var(--tile-fg, var(--tile-contact-fg));
+  /* Borde y sombra: navy en claro, blanco en oscuro (definen el tile sobre cualquier fondo). */
+  border: 2px solid var(--solid-shadow);
+  border-radius: 2px;
+  box-shadow: var(--offset) var(--offset) 0 var(--solid-shadow);
+  transition:
+    transform 0.12s ease,
+    box-shadow 0.12s ease;
+}
+.tile:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: calc(var(--offset) + 2px) calc(var(--offset) + 2px) 0 var(--solid-shadow);
+}
+.tile:active {
+  transform: translate(var(--offset), var(--offset));
+  box-shadow: none;
+}
+.tile:focus-visible {
+  outline-offset: 5px;
+}
+.tile-icon {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 2.25rem;
+}
+.tile-title {
+  display: block;
+  font-weight: 700;
+  line-height: 1.3;
+}
+.tile-text {
+  display: block;
+  font-size: var(--text-small);
+  line-height: 1.45;
+}
+.tile-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 0.75rem;
+  margin-top: 0.4rem;
+  font-family: var(--font-mono);
+  font-size: var(--text-micro);
+}
+
+/* Texto largo de casos de estudio y artículos */
+.prose {
+  color: var(--fg-secondary);
+  line-height: 1.75;
+}
+.prose > * + * {
+  margin-top: 1.1em;
+}
+.prose h2 {
+  font-size: var(--text-h2);
+  margin-top: 2.2em;
+}
+.prose h3 {
+  font-size: var(--text-h3);
+  margin-top: 1.8em;
+}
+.prose strong {
+  color: var(--fg);
+  font-weight: 600;
+}
+.prose a {
+  color: var(--link);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.prose a:hover {
+  color: var(--fg);
+}
+.prose ul,
+.prose ol {
+  padding-left: 1.25rem;
+}
+.prose ul {
+  list-style: square;
+}
+.prose ol {
+  list-style: decimal;
+}
+.prose li + li {
+  margin-top: 0.4em;
+}
+.prose li::marker {
+  color: var(--brand);
+}
+.prose code {
+  font-family: var(--font-mono);
+  font-size: 0.875em;
+  color: var(--fg);
+  background: var(--elevated);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 0.1em 0.35em;
+}
+.prose pre {
+  font-family: var(--font-mono);
+  font-size: var(--text-small);
+  background: var(--surface) !important;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 1rem 1.25rem;
+  overflow-x: auto;
+}
+.prose pre code {
+  background: none;
+  border: 0;
+  padding: 0;
+}
+.prose table {
+  display: block;
+  width: 100%;
+  overflow-x: auto;
+  border-collapse: collapse;
+  font-size: var(--text-small);
+}
+.prose th,
+.prose td {
+  text-align: left;
+  padding: 0.55rem 0.9rem;
+  border-bottom: 1px solid var(--line);
+  white-space: nowrap;
+}
+.prose th {
+  font-family: var(--font-mono);
+  font-size: var(--text-micro);
+  color: var(--fg-muted);
+  font-weight: 500;
+}
+.prose td {
+  color: var(--fg);
+  font-variant-numeric: tabular-nums;
+}

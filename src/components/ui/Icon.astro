@@ -1,0 +1,85 @@
+---
+/**
+ * Iconos SVG inline resueltos en build (cero JS, cero fuentes de iconos).
+ * Genéricos: lucide-static. Marcas: simple-icons (GitHub, Instagram).
+ * LinkedIn no está en ninguna de las dos librerías: se dibuja aquí.
+ */
+import arrowRight from 'lucide-static/icons/arrow-right.svg?raw';
+import arrowUpRight from 'lucide-static/icons/arrow-up-right.svg?raw';
+import mail from 'lucide-static/icons/mail.svg?raw';
+import menu from 'lucide-static/icons/menu.svg?raw';
+import close from 'lucide-static/icons/x.svg?raw';
+import fileText from 'lucide-static/icons/file-text.svg?raw';
+import mapPin from 'lucide-static/icons/map-pin.svg?raw';
+import terminal from 'lucide-static/icons/terminal.svg?raw';
+import database from 'lucide-static/icons/database.svg?raw';
+import cloud from 'lucide-static/icons/cloud.svg?raw';
+import bot from 'lucide-static/icons/bot.svg?raw';
+import workflow from 'lucide-static/icons/workflow.svg?raw';
+import codeXml from 'lucide-static/icons/code-xml.svg?raw';
+import chartLine from 'lucide-static/icons/chart-line.svg?raw';
+import briefcase from 'lucide-static/icons/briefcase.svg?raw';
+import layers from 'lucide-static/icons/layers.svg?raw';
+import gitBranch from 'lucide-static/icons/git-branch.svg?raw';
+import sun from 'lucide-static/icons/sun.svg?raw';
+import moon from 'lucide-static/icons/moon.svg?raw';
+import github from 'simple-icons/icons/github.svg?raw';
+import instagram from 'simple-icons/icons/instagram.svg?raw';
+
+const linkedin = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>`;
+
+const icons = {
+  'arrow-right': arrowRight,
+  'arrow-up-right': arrowUpRight,
+  mail,
+  menu,
+  close,
+  'file-text': fileText,
+  'map-pin': mapPin,
+  terminal,
+  database,
+  cloud,
+  bot,
+  workflow,
+  'code-xml': codeXml,
+  'chart-line': chartLine,
+  briefcase,
+  layers,
+  'git-branch': gitBranch,
+  sun,
+  moon,
+  github,
+  instagram,
+  linkedin,
+} as const;
+
+export type IconName = keyof typeof icons;
+
+interface Props {
+  name: IconName;
+  size?: number;
+  class?: string;
+  label?: string;
+}
+
+const { name, size = 18, class: className = '', label } = Astro.props;
+const brandFill = name === 'github' || name === 'instagram';
+
+// Only rewrite attributes on the root <svg> tag; inner shapes keep their own width/height.
+const raw = icons[name].replace(/<!--[\s\S]*?-->/g, '').replace(/<title>.*?<\/title>/, '').trim();
+const svg = raw.replace(/<svg\b[^>]*>/, (tag) => {
+  const cleaned = tag.replace(/\s(width|height|class|role|aria-[a-z]+)="[^"]*"/g, '');
+  const attrs = [
+    `width="${size}"`,
+    `height="${size}"`,
+    className && `class="${className}"`,
+    brandFill && 'fill="currentColor"',
+    label ? `role="img" aria-label="${label}"` : 'aria-hidden="true" focusable="false"',
+  ]
+    .filter(Boolean)
+    .join(' ');
+  return cleaned.replace('<svg', `<svg ${attrs}`);
+});
+---
+
+<Fragment set:html={svg} />
