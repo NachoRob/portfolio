@@ -1,0 +1,186 @@
+---
+import { Image } from 'astro:assets';
+import Button from '@/components/ui/Button.astro';
+import Icon from '@/components/ui/Icon.astro';
+import nacho from '@/assets/nacho.png';
+import { site, socials, current } from '@/data/site';
+
+const github = socials.find((s) => s.icon === 'github')!;
+---
+
+<section aria-labelledby="hero-title" class="page hero">
+  <div class="id">
+    <div class="photo">
+      <Image
+        src={nacho}
+        alt="Fotografía de Ignacio «Nacho» Robles con lentes, gorro burdeo y polerón azul."
+        widths={[160, 240, 320, 400]}
+        sizes="(min-width: 640px) 10rem, 7.5rem"
+        loading="eager"
+        fetchpriority="high"
+      />
+    </div>
+    <div>
+      <h1 id="hero-title">Hola, soy Nacho</h1>
+      <p class="handle">
+        {site.name} · <a href={github.href} target="_blank" rel="noopener noreferrer">{github.handle}<span
+            class="sr-only"> en GitHub (se abre en una pestaña nueva)</span
+          ></a>
+      </p>
+      <ul class="socials" aria-label="Redes">
+        {
+          socials.map((s) => (
+            <li>
+              <a href={s.href} {...(s.icon !== 'mail' ? { target: '_blank', rel: 'noopener noreferrer' } : {})}>
+                <Icon name={s.icon} size={20} />
+                <span class="sr-only">
+                  {s.label}
+                  {s.icon !== 'mail' && ' (se abre en una pestaña nueva)'}
+                </span>
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </div>
+
+  <p class="roles mono">{site.roles.join(' · ')}</p>
+
+  <p class="bio">
+    Construyo agentes de IA, sistemas RAG y aplicaciones web de punta a punta sobre datos en Google Cloud. Diseño
+    pensando en el problema de negocio, no solo en la tecnología.
+  </p>
+
+  <p class="now">
+    <Icon name="briefcase" size={16} />
+    <span>
+      Hoy: IA y datos en <a href={current.url} target="_blank" rel="noopener noreferrer">{current.company}<span
+          class="sr-only"> (se abre en una pestaña nueva)</span
+        ></a>
+    </span>
+  </p>
+
+  <div class="ctas">
+    <Button href="#proyectos">
+      Ver proyectos
+      <Icon name="arrow-right" size={18} />
+    </Button>
+    {
+      site.cvUrl ? (
+        <Button href={site.cvUrl} variant="secondary">
+          <Icon name="file-text" size={18} />
+          Descargar CV
+        </Button>
+      ) : (
+        <Button href={github.href} variant="secondary" external>
+          <Icon name="github" size={18} />
+          GitHub
+        </Button>
+      )
+    }
+  </div>
+</section>
+
+<style>
+  .hero {
+    padding-top: clamp(2.5rem, 1.5rem + 4vw, 4.5rem);
+  }
+  .id {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+  }
+  .photo {
+    flex: none;
+    width: 7.5rem;
+    aspect-ratio: 1;
+    overflow: hidden;
+    border: 2px solid var(--brand);
+    border-radius: var(--radius-lg);
+    background: var(--elevated);
+    box-shadow: 6px 6px 0 var(--ambient);
+  }
+  .photo :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: 50% 8%;
+  }
+  h1 {
+    font-size: var(--text-h1);
+    font-weight: 800;
+  }
+  .handle {
+    margin-top: 0.25rem;
+    font-weight: 600;
+    color: var(--fg-secondary);
+  }
+  .handle a {
+    color: var(--link);
+  }
+  .handle a:hover {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  .socials {
+    display: flex;
+    gap: 0.25rem;
+    margin-top: 0.5rem;
+    margin-left: -0.5rem;
+  }
+  .socials a {
+    display: grid;
+    place-items: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: var(--radius);
+    color: var(--fg-secondary);
+  }
+  .socials a:hover {
+    color: var(--fg);
+    background: var(--surface);
+  }
+  .roles {
+    margin-top: 2rem;
+    font-size: var(--text-small);
+    color: var(--link);
+  }
+  .bio {
+    margin-top: 0.75rem;
+    font-size: var(--text-lead);
+    color: var(--fg-secondary);
+  }
+  .now {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 1.25rem;
+    font-size: var(--text-small);
+    color: var(--fg-muted);
+  }
+  .now a {
+    font-weight: 600;
+    color: var(--fg);
+    text-decoration: underline;
+    text-decoration-color: var(--brand);
+    text-underline-offset: 3px;
+  }
+  .now a:hover {
+    color: var(--link);
+  }
+  .ctas {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-top: 2rem;
+  }
+  @media (min-width: 40rem) {
+    .id {
+      gap: 1.75rem;
+    }
+    .photo {
+      width: 10rem;
+    }
+  }
+</style>

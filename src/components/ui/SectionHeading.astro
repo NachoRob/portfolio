@@ -1,0 +1,30 @@
+---
+interface Props {
+  title: string;
+  id: string;
+  lead?: string;
+}
+const { title, id, lead } = Astro.props;
+---
+
+<header>
+  <h2 {id}>{title}</h2>
+  {lead && <p>{lead}</p>}
+</header>
+
+<style>
+  header {
+    margin-bottom: 1.5rem;
+  }
+  h2 {
+    font-size: var(--text-h2);
+    font-weight: 800;
+    display: inline-block;
+    padding-bottom: 0.35rem;
+    border-bottom: 3px solid var(--brand);
+  }
+  p {
+    margin-top: 0.75rem;
+    color: var(--fg-secondary);
+  }
+</style>

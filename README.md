@@ -1,84 +1,107 @@
-# 🚀 NachoDev Portfolio
+# NachoDev
 
-Portfolio personal en desarrollo, mostrando mis proyectos y habilidades en Data Science y Desarrollo Web.
+Portafolio personal de **Ignacio Robles**: agentes de IA, sistemas RAG, data engineering en Google Cloud y desarrollo full-stack.
 
-## 🌐 Demo en Vivo
+> **Construir. Entender. Compartir.**
 
-👉 [Ver Portfolio](https://nachorob.github.io/portfolio)
+🌐 [nachorob.github.io/portfolio](https://nachorob.github.io/portfolio/)
 
-## 🎨 Características
+## Stack
 
-- ✅ Diseño responsive (mobile, tablet, desktop)
-- ✅ Navbar fijo con navegación suave
-- ✅ Hero section con imagen de fondo
-- ✅ Sección de expertise con 3 áreas principales
-- ✅ Portfolio con 6 proyectos destacados
-- ✅ Experience section con accordion interactivo
-- ✅ Sección de contacto con información personal
-- ✅ Animaciones y efectos hover
+- **Astro 6** — sitio estático, cero JavaScript por defecto (solo el menú móvil usa un script mínimo).
+- **CSS propio** — tokens como variables CSS en `src/styles/global.css` y estilos locales (`<style>`) en cada componente. Sin frameworks de CSS.
+- **TypeScript** en modo `strictest`.
+- **Content Collections** con esquemas Zod para proyectos y artículos.
+- Fuentes autoalojadas vía Fontsource (Montserrat, Inter, JetBrains Mono, variables).
 
-## 🛠️ Tecnologías Utilizadas
+## Desarrollo
 
-![HTML5](https://img.shields.io/badge/HTML5-E34F26?style=for-the-badge&logo=html5&logoColor=white)
-![CSS3](https://img.shields.io/badge/CSS3-1572B6?style=for-the-badge&logo=css3&logoColor=white)
-![Bootstrap](https://img.shields.io/badge/Bootstrap-7952B3?style=for-the-badge&logo=bootstrap&logoColor=white)
-![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black)
-![Font Awesome](https://img.shields.io/badge/Font_Awesome-339AF0?style=for-the-badge&logo=fontawesome&logoColor=white)
+Requiere Node.js ≥ 22.12.
 
-## 🎨 Paleta de Colores
-
-- **Navbar/Portfolio:** `#141e28` - Azul oscuro
-- **Cyan principal:** `#69daeb` 
-- **Morado principal:** `#916dd0`
-- **Morado oscuro:** `#3d2d5a`
-- **Acentos:** `#ff006e` (rosa), `#00d9ff` (azul), `#ff6b00` (naranja)
-
-## 📂 Estructura del Proyecto
-
-```
-portfolio/
-├── index.html
-├── assets/
-│   ├── css/
-│   │   └── style.css
-│   └── img/
-│       ├── logo.png
-│       ├── bg-hero.png
-│       ├── proj-*.png
-│       └── logos empresas
-└── README.md
+```bash
+npm install
+npm run dev       # http://localhost:4321/portfolio/
+npm run build     # astro check + build en ./dist
+npm run preview
 ```
 
-## 🚧 Estado del Proyecto
+## Estructura
 
-**En desarrollo activo** - Próximas mejoras:
+```
+src/
+├── assets/            imágenes procesadas por astro:assets (foto, capturas)
+├── components/
+│   ├── ui/            primitivas: Button, Badge, Card, Icon, Logo, FlowDiagram…
+│   ├── sections/      secciones de la home
+│   ├── Navbar.astro
+│   └── Footer.astro
+├── content/
+│   ├── projects/      un .md por caso de estudio
+│   └── articles/      artículos (ver _plantilla.md)
+├── content.config.ts  esquemas Zod de las colecciones
+├── data/site.ts       perfil, enlaces, experiencia y formación
+├── layouts/Base.astro SEO, Open Graph, JSON-LD
+├── pages/             index, proyectos/[id], 404
+└── styles/global.css  design tokens + estilos base
+```
 
-- [ ] Optimizar imágenes
-- [ ] Agregar más animaciones
-- [ ] Mejorar responsive en tablets
-- [ ] Agregar formulario de contacto funcional
-- [ ] Implementar modo oscuro/claro
+### Agregar un proyecto
 
-## 💡 Feedback
+Crea `src/content/projects/mi-proyecto.md`. El frontmatter se valida al compilar:
 
-Este proyecto está en constante evolución. Si tienes sugerencias, ideas o encuentras algún bug, ¡no dudes en:
+```yaml
+title: Nombre del proyecto
+summary: Una o dos frases (máx. 220 caracteres).
+category: ai # ai | fullstack | data | web
+year: 2026
+featured: false
+order: 10
+stack: [Python, BigQuery]
+flow: # opcional: se dibuja como diagrama de arquitectura
+  - { label: Ingesta, detail: Cloud Storage }
+  - { label: Modelo }
+metrics: # opcional: solo valores publicados y verificables
+  - { label: Accuracy, value: '0.91' }
+repo: https://github.com/NachoRob/…
+```
 
-- Abrir un [Issue](https://github.com/NachoRob/portfolio/issues)
-- Enviarme un mensaje
-- Hacer un Pull Request
+El cuerpo sigue la estructura **Problema → Arquitectura y stack → Decisiones técnicas → Impacto**.
 
-## 👨‍💻 Autor
+### Publicar un artículo
 
-**Ignacio Robles**
+Copia `src/content/articles/_plantilla.md` sin el guion bajo y cambia `draft: false`.
 
-- GitHub: [@NachoRob](https://github.com/NachoRob)
-- LinkedIn: www.linkedin.com/in/ignacioroblesr
-- Email: ignaciorob86@gmail.com
+## NachoDev Design System v1.0
 
-## 📝 Licencia
+Todos los valores viven en `src/styles/global.css` como variables CSS (`--surface`, `--fg-muted`, `--font-display`…). Los componentes las usan en sus `<style>` locales, nunca HEX directos.
 
-Este proyecto fue desarrollado como parte de un bootcamp de Fullstack JavaScript en Desafío Latam.
+**Dirección visual:** clásica y plana. Una columna de lectura, retícula de puntos, filas-enlace con borde y sombra sólida desplazada al pasar el cursor.
+
+**Modo oscuro y claro:** el sitio sigue la preferencia del sistema, y el botón de la barra superior la cambia (se guarda en `localStorage`). En oscuro el fondo es `--navy`; en claro, `--gray-50`. Los valores de cada modo están en `:root[data-theme='dark']` y `:root[data-theme='light']`.
+
+**Tiles de color (proyectos y contacto):** estilo link-in-bio, planos, con borde y sombra sólida desplazada (navy en claro, blanca en oscuro). Solo colores de la paleta, cada uno con su color de texto: IA → `--blue` + blanco (5.17:1), datos → `--sky` + navy (6.5:1), web → `--navy` + blanco, full-stack → `--white` + navy, contacto → `--blue` + blanco.
+
+**Paleta de marca**
+
+| Token | Valor | Uso |
+| --- | --- | --- |
+| `--navy` | `#0B1F3A` | Principal: barra, footer, tarjetas de proyectos, títulos y texto principal |
+| `--blue` | `#2563EB` | Secundario: CTAs, enlaces, subrayados de sección |
+| `--sky` | `#60A5FA` | Acento: detalles sobre fondo navy |
+| `--white` | `#FFFFFF` | Tarjetas claras, texto sobre navy |
+| `--gray-50` | `#F3F4F6` | Fondo de página |
+| `--gray-700` | `#374151` | Texto secundario |
+
+Derivados (para estados y contraste): `--brand-hover` `#1D4ED8`, `--brand-pressed` `#1E40AF`, `--fg-muted` `#4B5563`, `--on-navy-secondary` `#D6E2F3`, `--line` `#E5E7EB`, `--line-strong` `#CBD5E1`, `--elevated` `#E8EFFC`.
+
+**Tipografía:** Montserrat (títulos), Inter (texto e interfaz), JetBrains Mono (código y metadatos).
+
+**Contraste verificado (WCAG AA):** navy sobre blanco 16:1; `#374151` sobre `#F3F4F6` 9.4:1; botón primario (blanco sobre `#2563EB`) 5.17:1; enlaces `#1D4ED8` 6.7:1; sobre navy, `#60A5FA` 6.4:1 y `#D6E2F3` 13:1. Lighthouse Accessibility: 100.
+
+## Despliegue
+
+GitHub Pages mediante `.github/workflows/deploy.yml`. Para activarlo, en **Settings → Pages → Source** selecciona **GitHub Actions**.
 
 ---
 
-⭐ Si te gustó este proyecto, dale una estrella en GitHub!
+Ignacio Robles · [GitHub](https://github.com/NachoRob) · [LinkedIn](https://www.linkedin.com/in/ignacioroblesr/)

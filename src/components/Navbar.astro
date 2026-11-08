@@ -1,0 +1,179 @@
+---
+import Logo from '@/components/ui/Logo.astro';
+import Icon from '@/components/ui/Icon.astro';
+import { nav } from '@/data/site';
+import { href } from '@/lib/url';
+
+const home = href();
+---
+
+<header class="bar">
+  <nav aria-label="Principal" class="inner">
+    <a href={home} class="brand"><Logo onDark /></a>
+
+    <ul class="links">
+      {
+        nav.map((item) => (
+          <li>
+            <a href={`${home}${item.href}`}>{item.label}</a>
+          </li>
+        ))
+      }
+    </ul>
+
+    <div class="actions">
+    <button type="button" class="icon-btn theme" aria-pressed="false" data-theme-toggle>
+      <span class="moon"><Icon name="moon" size={18} /></span>
+      <span class="sun"><Icon name="sun" size={18} /></span>
+      <span class="sr-only">Modo oscuro</span>
+    </button>
+    <button type="button" class="icon-btn toggle" aria-expanded="false" aria-controls="menu-movil" data-menu-toggle>
+      <span data-icon-open><Icon name="menu" size={20} /></span>
+      <span data-icon-close hidden><Icon name="close" size={20} /></span>
+      <span class="sr-only" data-menu-label>Abrir menú</span>
+    </button>
+    </div>
+  </nav>
+
+  <ul id="menu-movil" class="mobile" hidden>
+    {
+      nav.map((item) => (
+        <li>
+          <a href={`${home}${item.href}`} data-menu-link>
+            {item.label}
+          </a>
+        </li>
+      ))
+    }
+  </ul>
+</header>
+
+<style>
+  .bar {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background: var(--navy);
+    color: var(--on-navy);
+    border-bottom: 1px solid var(--bar-border);
+  }
+  .actions {
+    display: flex;
+    gap: 0.5rem;
+  }
+  .sun,
+  :global([data-theme='dark']) .moon {
+    display: none;
+  }
+  :global([data-theme='dark']) .sun {
+    display: block;
+  }
+  .inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    max-width: calc(var(--page-wide) + 2 * var(--gutter));
+    height: var(--nav-h);
+    margin-inline: auto;
+    padding-inline: var(--gutter);
+  }
+  .brand {
+    font-size: 1.25rem;
+    padding: 0.25rem 0;
+  }
+  .links {
+    display: none;
+    gap: 0.25rem;
+    margin-left: auto;
+  }
+  .links a {
+    display: block;
+    padding: 0.5rem 0.75rem;
+    border-radius: var(--radius);
+    font-size: var(--text-small);
+    font-weight: 500;
+    color: var(--on-navy-secondary);
+  }
+  .links a:hover {
+    color: var(--on-navy);
+    background: rgb(255 255 255 / 0.1);
+  }
+  .icon-btn {
+    display: grid;
+    place-items: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    background: transparent;
+    border: 1px solid rgb(255 255 255 / 0.35);
+    border-radius: var(--radius);
+    color: var(--on-navy);
+    cursor: pointer;
+  }
+  .mobile {
+    border-top: 1px solid rgb(255 255 255 / 0.15);
+    padding: 0.5rem var(--gutter) 1rem;
+  }
+  .mobile a {
+    display: block;
+    padding: 0.875rem 0.25rem;
+    border-bottom: 1px solid rgb(255 255 255 / 0.15);
+    font-weight: 500;
+    color: var(--on-navy-secondary);
+  }
+  .mobile a:hover {
+    color: var(--on-navy);
+  }
+  .bar :focus-visible {
+    outline-color: var(--on-navy-accent);
+  }
+  @media (min-width: 48rem) {
+    .links {
+      display: flex;
+    }
+    .toggle,
+    .mobile {
+      display: none;
+    }
+  }
+</style>
+
+<script>
+  const themeBtn = document.querySelector<HTMLButtonElement>('[data-theme-toggle]');
+  if (themeBtn) {
+    const root = document.documentElement;
+    const sync = () => themeBtn.setAttribute('aria-pressed', String(root.dataset.theme === 'dark'));
+    sync();
+    themeBtn.addEventListener('click', () => {
+      root.dataset.theme = root.dataset.theme === 'dark' ? 'light' : 'dark';
+      try {
+        localStorage.setItem('theme', root.dataset.theme);
+      } catch {}
+      sync();
+    });
+  }
+
+  const toggle = document.querySelector<HTMLButtonElement>('[data-menu-toggle]');
+  const menu = document.getElementById('menu-movil');
+  if (toggle && menu) {
+    const label = toggle.querySelector('[data-menu-label]');
+    const iconOpen = toggle.querySelector<HTMLElement>('[data-icon-open]');
+    const iconClose = toggle.querySelector<HTMLElement>('[data-icon-close]');
+    const setOpen = (open: boolean) => {
+      menu.hidden = !open;
+      toggle.setAttribute('aria-expanded', String(open));
+      if (label) label.textContent = open ? 'Cerrar menú' : 'Abrir menú';
+      if (iconOpen) iconOpen.hidden = open;
+      if (iconClose) iconClose.hidden = !open;
+    };
+    toggle.addEventListener('click', () => setOpen(menu.hidden));
+    menu.querySelectorAll('[data-menu-link]').forEach((a) => a.addEventListener('click', () => setOpen(false)));
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && !menu.hidden) {
+        setOpen(false);
+        toggle.focus();
+      }
+    });
+    matchMedia('(min-width: 48rem)').addEventListener('change', (e) => e.matches && setOpen(false));
+  }
+</script>

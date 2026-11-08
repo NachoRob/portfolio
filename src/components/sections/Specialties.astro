@@ -1,0 +1,74 @@
+---
+import Icon, { type IconName } from '@/components/ui/Icon.astro';
+import SectionHeading from '@/components/ui/SectionHeading.astro';
+
+const areas: { icon: IconName; title: string; text: string; tools: string[] }[] = [
+  {
+    icon: 'bot',
+    title: 'IA y agentes',
+    text: 'Flujos con LLMs para creación de contenido, sistemas RAG sobre datos corporativos y agentes que usan herramientas y validan su trabajo.',
+    tools: ['Gemini', 'LangChain', 'RAG', 'Function Calling'],
+  },
+  {
+    icon: 'cloud',
+    title: 'Cloud y datos',
+    text: 'Pipelines y modelado de datos en Google Cloud con BigQuery, dashboards para decidir y modelos de machine learning con CRISP-DM.',
+    tools: ['GCP', 'BigQuery', 'SQL', 'Python', 'Looker Studio'],
+  },
+  {
+    icon: 'code-xml',
+    title: 'Desarrollo full-stack',
+    text: 'APIs REST con autenticación, bases de datos relacionales con migraciones y clientes en React, separados por capas.',
+    tools: ['TypeScript', 'React', 'Node.js', 'PostgreSQL'],
+  },
+];
+---
+
+<section id="especialidades" aria-labelledby="especialidades-title" class="page block">
+  <SectionHeading id="especialidades-title" title="Qué hago" />
+  <ul class="list">
+    {
+      areas.map((a) => (
+        <li class="item">
+          <span class="row-icon">
+            <Icon name={a.icon} size={20} />
+          </span>
+          <div>
+            <h3>{a.title}</h3>
+            <p class="row-text">{a.text}</p>
+            <p class="stack-list">{a.tools.join(' · ')}</p>
+          </div>
+        </li>
+      ))
+    }
+  </ul>
+</section>
+
+<style>
+  .block {
+    margin-top: var(--section-gap);
+  }
+  .list {
+    display: grid;
+    gap: 0.75rem;
+  }
+  .item {
+    display: flex;
+    gap: 1rem;
+    padding: 1.125rem 1.25rem;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-left: 3px solid var(--brand);
+    border-radius: var(--radius);
+  }
+  h3 {
+    font-size: var(--text-h3);
+    font-weight: 700;
+  }
+  .row-text {
+    margin-top: 0.25rem;
+  }
+  .stack-list {
+    margin-top: 0.5rem;
+  }
+</style>

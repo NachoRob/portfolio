@@ -1,0 +1,50 @@
+---
+import SectionHeading from '@/components/ui/SectionHeading.astro';
+import Icon from '@/components/ui/Icon.astro';
+import { socials } from '@/data/site';
+
+const text: Record<string, string> = {
+  mail: 'La forma más directa de hablar conmigo',
+  linkedin: 'Trayectoria profesional',
+  github: 'Código de todos los proyectos',
+  instagram: 'Perfil personal',
+};
+const order = ['mail', 'linkedin', 'github', 'instagram'];
+const links = [...socials].sort((a, b) => order.indexOf(a.icon) - order.indexOf(b.icon));
+---
+
+<section id="contacto" aria-labelledby="contacto-title" class="page block">
+  <SectionHeading
+    id="contacto-title"
+    title="Contacto"
+    lead="¿Tienes un proyecto o quieres conversar sobre IA, datos o arquitectura? Escríbeme."
+  />
+  <ul class="list">
+    {
+      links.map((s) => (
+        <li>
+          <a href={s.href} class="tile" {...(s.icon !== 'mail' ? { target: '_blank', rel: 'noopener noreferrer' } : {})}>
+            <span class="tile-icon">
+              <Icon name={s.icon} size={22} />
+            </span>
+            <span>
+              <span class="tile-title">{s.label}</span>
+              <span class="tile-text">{s.icon === 'mail' ? s.handle : `${text[s.icon]} · ${s.handle}`}</span>
+            </span>
+            {s.icon !== 'mail' && <span class="sr-only">(se abre en una pestaña nueva)</span>}
+          </a>
+        </li>
+      ))
+    }
+  </ul>
+</section>
+
+<style>
+  .block {
+    margin-top: var(--section-gap);
+  }
+  .list {
+    display: grid;
+    gap: 0.875rem;
+  }
+</style>

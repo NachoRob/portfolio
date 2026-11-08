@@ -1,0 +1,35 @@
+---
+import Base from '@/layouts/Base.astro';
+import Button from '@/components/ui/Button.astro';
+import { href } from '@/lib/url';
+---
+
+<Base title="Página no encontrada · NachoDev" description="La página que buscas no existe." noindex>
+  <section class="page">
+    <p class="mono code">Error 404</p>
+    <h1>Esta ruta no existe.</h1>
+    <p class="lead">Puede que el enlace haya cambiado con el rediseño del sitio.</p>
+    <Button href={href()}>Volver al inicio</Button>
+  </section>
+</Base>
+
+<style>
+  section {
+    padding-block: 6rem 2rem;
+    text-align: center;
+  }
+  .code {
+    color: var(--link);
+    font-size: var(--text-small);
+  }
+  h1 {
+    margin-top: 0.75rem;
+    font-size: var(--text-h1);
+    font-weight: 800;
+  }
+  .lead {
+    margin: 1rem auto 2rem;
+    max-width: 28rem;
+    color: var(--fg-secondary);
+  }
+</style>

@@ -1,0 +1,59 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import Icon, { type IconName } from '@/components/ui/Icon.astro';
+import { categories } from '@/lib/taxonomy';
+import { href } from '@/lib/url';
+
+interface Props {
+  project: CollectionEntry<'projects'>;
+}
+
+const { project } = Astro.props;
+const { data, id } = project;
+const icons: Record<typeof data.category, IconName> = {
+  ai: 'bot',
+  fullstack: 'layers',
+  data: 'chart-line',
+  web: 'code-xml',
+};
+const metric = data.metrics?.find((m) => /^\d/.test(m.value));
+// Un color por categoría (tokens --tile-* en global.css).
+const tileVars = `--tile-bg: var(--tile-${data.category}-bg); --tile-fg: var(--tile-${data.category}-fg)`;
+---
+
+<a href={href(`proyectos/${id}/`)} class="tile" style={tileVars}>
+  <span class="tile-icon"><Icon name={icons[data.category]} size={22} /></span>
+  <span class="body">
+    <span class="tile-title">{data.title}</span>
+    <span class="tile-text">{data.summary}</span>
+    <span class="tile-meta">
+      <span>{categories[data.category].label}{data.year && ` · ${data.year}`}</span>
+      {metric && <strong>{metric.label} {metric.value}</strong>}
+    </span>
+  </span>
+  <Icon name="arrow-right" size={20} class="arrow" />
+</a>
+
+<style>
+  .tile {
+    align-items: flex-start;
+  }
+  .tile-icon {
+    margin-top: 0.1rem;
+  }
+  .body {
+    flex: 1;
+    min-width: 0;
+  }
+  .tile-text {
+    margin-top: 0.2rem;
+  }
+  .tile :global(.arrow) {
+    flex: none;
+    align-self: center;
+    transition: transform 0.12s ease;
+  }
+  .tile:hover :global(.arrow) {
+    transform: translateX(3px);
+  }
+</style>

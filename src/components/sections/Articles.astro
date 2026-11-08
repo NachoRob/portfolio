@@ -1,0 +1,85 @@
+---
+import { getCollection } from 'astro:content';
+import SectionHeading from '@/components/ui/SectionHeading.astro';
+import { articleTopics } from '@/lib/taxonomy';
+
+const articles = (await getCollection('articles', ({ data }) => !data.draft)).sort(
+  (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
+);
+const fmt = new Intl.DateTimeFormat('es-CL', { day: 'numeric', month: 'short', year: 'numeric' });
+---
+
+<section id="articulos" aria-labelledby="articulos-title" class="page block">
+  <SectionHeading
+    id="articulos-title"
+    title="Artículos"
+    lead="Notas técnicas sobre lo que construyo: decisiones, errores y trade-offs."
+  />
+
+  {
+    articles.length > 0 ? (
+      <ul class="list">
+        {articles.map((a) => (
+          <li class="item">
+            <p class="stack-list">
+              {articleTopics[a.data.topic]} ·{' '}
+              <time datetime={a.data.pubDate.toISOString()}>{fmt.format(a.data.pubDate)}</time>
+            </p>
+            <h3>{a.data.title}</h3>
+            <p class="row-text">{a.data.description}</p>
+          </li>
+        ))}
+      </ul>
+    ) : (
+      <div class="empty">
+        <p>Todavía no hay artículos publicados. Los primeros irán sobre:</p>
+        <ul class="topics">
+          {Object.values(articleTopics).map((t) => (
+            <li>{t}</li>
+          ))}
+        </ul>
+      </div>
+    )
+  }
+</section>
+
+<style>
+  .block {
+    margin-top: var(--section-gap);
+  }
+  .list {
+    display: grid;
+    gap: 0.75rem;
+  }
+  .item {
+    padding: 1rem 1.25rem;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+  }
+  h3 {
+    margin-top: 0.35rem;
+    font-size: var(--text-h3);
+    font-weight: 700;
+  }
+  .empty {
+    padding: 1.25rem;
+    border: 1px dashed var(--line-strong);
+    border-radius: var(--radius);
+    color: var(--fg-secondary);
+  }
+  .topics {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 1rem;
+  }
+  .topics li {
+    padding: 0.25rem 0.625rem;
+    border: 1px solid var(--line-strong);
+    border-radius: var(--radius);
+    font-family: var(--font-mono);
+    font-size: var(--text-micro);
+    color: var(--fg-secondary);
+  }
+</style>

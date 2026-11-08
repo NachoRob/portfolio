@@ -1,0 +1,86 @@
+---
+import { getCollection } from 'astro:content';
+import SectionHeading from '@/components/ui/SectionHeading.astro';
+import ProjectCard from '@/components/ProjectCard.astro';
+import Icon from '@/components/ui/Icon.astro';
+import { socials } from '@/data/site';
+
+const all = (await getCollection('projects')).sort((a, b) => a.data.order - b.data.order);
+const featured = all.filter((p) => p.data.featured);
+const rest = all.filter((p) => !p.data.featured);
+const github = socials.find((s) => s.icon === 'github')!;
+---
+
+<section id="proyectos" aria-labelledby="proyectos-title" class="page block">
+  <SectionHeading
+    id="proyectos-title"
+    title="Proyectos"
+    lead="Qué problema resuelve cada uno, cómo está construido y qué decisiones técnicas lo sostienen."
+  />
+
+  <ul class="list">
+    {
+      featured.map((p) => (
+        <li>
+          <ProjectCard project={p} />
+        </li>
+      ))
+    }
+  </ul>
+
+  {
+    rest.length > 0 && (
+      <>
+        <h3 class="sub">Más proyectos</h3>
+        <ul class="list">
+          {rest.map((p) => (
+            <li>
+              <ProjectCard project={p} />
+            </li>
+          ))}
+        </ul>
+      </>
+    )
+  }
+
+  <p class="more">
+    <a href={github.href} target="_blank" rel="noopener noreferrer">
+      <Icon name="github" size={16} />
+      Todo el código en GitHub
+      <span class="sr-only">(se abre en una pestaña nueva)</span>
+    </a>
+  </p>
+</section>
+
+<style>
+  .block {
+    margin-top: var(--section-gap);
+  }
+  .sub {
+    margin: 1.75rem 0 0.75rem;
+    font-family: var(--font-mono);
+    font-size: var(--text-micro);
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--fg-muted);
+  }
+  .list {
+    display: grid;
+    gap: 0.875rem;
+  }
+  .more {
+    margin-top: 1.5rem;
+  }
+  .more a {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: var(--text-small);
+    font-weight: 600;
+    color: var(--link);
+  }
+  .more a:hover {
+    color: var(--fg);
+  }
+</style>
