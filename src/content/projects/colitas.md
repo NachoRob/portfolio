@@ -6,7 +6,7 @@ year: 2026
 featured: true
 order: 5
 stack: [Astro, Sanity CMS, Firebase Hosting]
-demo: https://colitas-social-club.web.app/
+demo: https://www.colitassocialclub.com/
 context: Proyecto independiente · diseño y desarrollo end-to-end
 ---
 
