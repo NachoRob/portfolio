@@ -9,8 +9,7 @@ const year = new Date().getFullYear();
 <footer>
   <div class="page">
     <a href={href()} class="brand"><Logo onDark /></a>
-    <p class="motto mono">{site.philosophy.join(' · ')}</p>
-    <p class="copy">© {year} {site.name} · Hecho con Astro desde Chile.</p>
+    <p class="copy">© {year} {site.name} · {site.philosophy.join('. ')}.</p>
   </div>
 </footer>
 
@@ -25,12 +24,6 @@ const year = new Date().getFullYear();
   .brand {
     display: inline-block;
     font-size: 1.375rem;
-  }
-  .motto {
-    margin-top: 0.75rem;
-    font-size: var(--text-micro);
-    letter-spacing: 0.08em;
-    color: var(--on-navy-accent);
   }
   .copy {
     margin-top: 0.5rem;

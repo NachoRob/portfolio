@@ -41,8 +41,8 @@ export const socials: SocialLink[] = [
   },
   {
     label: 'Instagram',
-    href: 'https://www.instagram.com/i_ro_1986/',
-    handle: '@i_ro_1986',
+    href: 'https://www.instagram.com/nachodev.tech/',
+    handle: '@nachodev.tech',
     icon: 'instagram',
   },
   { label: 'Email', href: `mailto:${site.email}`, handle: site.email, icon: 'mail' },

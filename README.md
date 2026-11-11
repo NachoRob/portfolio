@@ -4,7 +4,7 @@ Portafolio personal de **Ignacio Robles**: agentes de IA, sistemas RAG, data eng
 
 > **Construir. Entender. Compartir.**
 
-🌐 [nachorob.github.io/portfolio](https://nachorob.github.io/portfolio/)
+🌐 [nachorobles.dev](https://nachorobles.dev/)
 
 ## Stack
 
@@ -20,7 +20,7 @@ Requiere Node.js ≥ 22.12.
 
 ```bash
 npm install
-npm run dev       # http://localhost:4321/portfolio/
+npm run dev       # http://localhost:4321/
 npm run build     # astro check + build en ./dist
 npm run preview
 ```
@@ -101,6 +101,8 @@ Derivados (para estados y contraste): `--brand-hover` `#1D4ED8`, `--brand-presse
 ## Despliegue
 
 GitHub Pages mediante `.github/workflows/deploy.yml`. Para activarlo, en **Settings → Pages → Source** selecciona **GitHub Actions**.
+
+El sitio se publica en **https://nachorobles.dev/**. En `astro.config.mjs`, `site` apunta a ese dominio y `base` es `/`. En **Settings → Pages → Custom domain** debe figurar `nachorobles.dev`, con **Enforce HTTPS** activado cuando el certificado esté disponible.
 
 ---
 
