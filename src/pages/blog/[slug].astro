@@ -1,0 +1,309 @@
+---
+import type { GetStaticPaths } from 'astro';
+import type { CollectionEntry } from 'astro:content';
+import { PortableText } from 'astro-portabletext';
+import Base from '@/layouts/Base.astro';
+import Icon from '@/components/ui/Icon.astro';
+import PostToc from '@/components/PostToc.astro';
+import PtHeading from '@/components/portable/PtHeading.astro';
+import PtImage from '@/components/portable/PtImage.astro';
+import PtCode from '@/components/portable/PtCode.astro';
+import { formatDate, getPosts } from '@/lib/articles';
+import { readingMinutes, withAnchors } from '@/lib/portable';
+import { sanityImage, sanitySrcset } from '@/lib/sanity';
+import { articleTopics } from '@/lib/taxonomy';
+import { href } from '@/lib/url';
+import { site } from '@/data/site';
+
+export const getStaticPaths = (async () => {
+  // Los artículos con URL externa enlazan fuera: no tienen página propia.
+  const posts = (await getPosts()).filter(({ data }) => !data.url);
+  return posts.map((post) => ({ params: { slug: post.id }, props: { post } }));
+}) satisfies GetStaticPaths;
+
+interface Props {
+  post: CollectionEntry<'posts'>;
+}
+
+const { post } = Astro.props;
+const { data } = post;
+const { body, headings } = withAnchors(data.body);
+const minutes = readingMinutes(data.body);
+const showToc = headings.length >= 2;
+
+const components = {
+  block: { h2: PtHeading, h3: PtHeading },
+  type: { image: PtImage, code: PtCode },
+};
+
+const pageUrl = new URL(Astro.url.pathname, Astro.site).href;
+const homeUrl = new URL(href(), Astro.site).href;
+const blogUrl = new URL(href('blog/'), Astro.site).href;
+
+const jsonLd = [
+  {
+    '@type': 'BlogPosting',
+    '@id': `${pageUrl}#post`,
+    headline: data.title,
+    description: data.description,
+    url: pageUrl,
+    mainEntityOfPage: pageUrl,
+    inLanguage: data.lang,
+    datePublished: data.pubDate.toISOString(),
+    dateModified: (data.updatedDate ?? data.pubDate).toISOString(),
+    author: { '@id': `${homeUrl}#person` },
+    publisher: { '@id': `${homeUrl}#person` },
+    articleSection: articleTopics[data.topic],
+    ...(data.tags.length > 0 ? { keywords: data.tags.join(', ') } : {}),
+    ...(data.cover ? { image: sanityImage(data.cover.url, 1200) } : {}),
+  },
+  {
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: site.brand, item: homeUrl },
+      { '@type': 'ListItem', position: 2, name: 'Blog', item: blogUrl },
+      { '@type': 'ListItem', position: 3, name: data.title, item: pageUrl },
+    ],
+  },
+];
+---
+
+<Base
+  title={`${data.title} · ${site.brand}`}
+  description={data.description}
+  ogType="article"
+  {jsonLd}
+  {...(data.cover ? { image: { url: sanityImage(data.cover.url, 1200), alt: data.cover.alt ?? '' } } : {})}
+>
+  {/* Decorativo: solo se pinta donde hay animaciones ligadas al scroll. */}
+  <div class="progress"></div>
+
+  <article class:list={['layout', { 'with-toc': showToc }]} lang={data.lang}>
+    <div class="head">
+      <nav aria-label="Ruta" class="crumbs mono" lang="es">
+        <ol>
+          <li><a href={href()}>inicio</a></li>
+          <li aria-hidden="true">/</li>
+          <li><a href={href('blog/')}>blog</a></li>
+          <li aria-hidden="true">/</li>
+          <li aria-current="page">{post.id}</li>
+        </ol>
+      </nav>
+
+      <header>
+        <p class="meta mono" lang="es">{articleTopics[data.topic]}</p>
+        <h1>{data.title}</h1>
+        <p class="lead">{data.description}</p>
+        <p class="byline mono" lang="es">
+          <span>{site.name}</span>
+          <time datetime={data.pubDate.toISOString()}>{formatDate(data.pubDate)}</time>
+          <span>{minutes} min de lectura</span>
+          {
+            data.updatedDate && (
+              <span>
+                Actualizado el{' '}
+                <time datetime={data.updatedDate.toISOString()}>{formatDate(data.updatedDate)}</time>
+              </span>
+            )
+          }
+        </p>
+      </header>
+
+      {
+        data.cover && (
+          <figure class="cover">
+            <img
+              src={sanityImage(data.cover.url, Math.min(data.cover.width, 1100))}
+              srcset={sanitySrcset(data.cover.url, data.cover.width)}
+              sizes="(min-width: 48rem) 46rem, 92vw"
+              width={data.cover.width}
+              height={data.cover.height}
+              alt={data.cover.alt ?? ''}
+              fetchpriority="high"
+              decoding="async"
+            />
+          </figure>
+        )
+      }
+    </div>
+
+    {
+      showToc && (
+        <div class="toc-slot" lang="es">
+          <PostToc {headings} />
+        </div>
+      )
+    }
+
+    <div class="body">
+      <div class="prose article">
+        <PortableText value={body as never} {components} />
+      </div>
+
+      {
+        data.tags.length > 0 && (
+          <ul class="tags stack-list" aria-label="Etiquetas" lang="es">
+            {data.tags.map((tag) => (
+              <li>#{tag}</li>
+            ))}
+          </ul>
+        )
+      }
+
+      <nav aria-label="Más artículos" class="next" lang="es">
+        <a href={href('blog/')} class="row-link">
+          <span class="grow">
+            <span class="row-text">Seguir leyendo</span>
+            <span class="row-title">Todos los artículos</span>
+          </span>
+          <Icon name="arrow-right" size={20} />
+        </a>
+      </nav>
+    </div>
+  </article>
+</Base>
+
+<style>
+  .layout {
+    width: 100%;
+    max-width: calc(var(--page) + 2 * var(--gutter));
+    margin-inline: auto;
+    padding: 2rem var(--gutter) 0;
+  }
+  .crumbs ol {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    font-size: var(--text-micro);
+    color: var(--fg-muted);
+  }
+  .crumbs a:hover {
+    color: var(--fg);
+  }
+  .crumbs [aria-current] {
+    color: var(--fg-secondary);
+    overflow-wrap: anywhere;
+  }
+  header {
+    margin-top: 2rem;
+  }
+  .meta {
+    font-size: var(--text-micro);
+    color: var(--link);
+  }
+  h1 {
+    margin-top: 0.5rem;
+    font-size: var(--text-h1);
+    font-weight: 800;
+  }
+  .lead {
+    margin-top: 1rem;
+    font-size: var(--text-lead);
+    color: var(--fg-secondary);
+  }
+  .byline {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem 1rem;
+    margin-top: 1.25rem;
+    font-size: var(--text-micro);
+    color: var(--fg-muted);
+  }
+  .cover {
+    margin-top: 2rem;
+    overflow: hidden;
+    border: 1px solid var(--line-strong);
+    border-radius: var(--radius);
+  }
+  .cover img {
+    width: 100%;
+  }
+  .toc-slot {
+    margin-top: 2rem;
+    padding: 1.125rem 1.25rem;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-left: 3px solid var(--brand);
+    border-radius: var(--radius);
+  }
+  .prose {
+    margin-top: 2.5rem;
+  }
+  .tags {
+    margin-top: 2.5rem;
+  }
+  .next {
+    margin-top: 2.5rem;
+  }
+  .grow {
+    flex: 1;
+  }
+  .next .row-title {
+    font-family: var(--font-display);
+    font-size: var(--text-h3);
+  }
+
+  /* Pantallas anchas: la tabla de contenidos pasa al margen derecho y acompaña la lectura. */
+  @media (min-width: 72rem) {
+    .with-toc {
+      display: grid;
+      grid-template-columns: minmax(0, var(--page)) minmax(0, 1fr);
+      grid-template-areas:
+        'head toc'
+        'body toc';
+      column-gap: 3rem;
+      max-width: calc(var(--page-wide) + 2 * var(--gutter));
+    }
+    .with-toc .head {
+      grid-area: head;
+    }
+    .with-toc .body {
+      grid-area: body;
+    }
+    .with-toc .toc-slot {
+      grid-area: toc;
+      align-self: start;
+      position: sticky;
+      top: calc(var(--nav-h) + 2rem);
+      max-height: calc(100dvh - var(--nav-h) - 4rem);
+      overflow-y: auto;
+      margin-top: 4.5rem;
+      padding: 0;
+      background: none;
+      border: 0;
+    }
+  }
+
+  /* Barra de progreso de lectura, pegada bajo la barra de navegación. */
+  .progress {
+    display: none;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    @supports (animation-timeline: scroll()) {
+      @keyframes grow-progress {
+        from {
+          transform: scaleX(0);
+        }
+        to {
+          transform: scaleX(1);
+        }
+      }
+      .progress {
+        display: block;
+        position: fixed;
+        top: var(--nav-h);
+        left: 0;
+        z-index: 49;
+        width: 100%;
+        height: 3px;
+        background: var(--brand);
+        /* Si la página no tiene scroll la línea de tiempo queda inactiva: la barra parte vacía. */
+        transform: scaleX(0);
+        transform-origin: 0 50%;
+        animation: grow-progress auto linear;
+        /* Después del shorthand `animation`, que si no lo reinicia. */
+        animation-timeline: scroll(root);
+      }
+    }
+  }
+</style>

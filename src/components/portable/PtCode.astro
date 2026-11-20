@@ -1,0 +1,211 @@
+---
+/**
+ * Bloque de código (@sanity/code-input) resaltado en build con Shiki, más un
+ * botón de copiar declarado con Invoker Commands (`command` + `commandfor`).
+ */
+import { Code } from 'astro:components';
+import Icon from '@/components/ui/Icon.astro';
+
+interface Props {
+  node: { _key?: string; code?: string | null; language?: string | null; filename?: string | null };
+}
+
+const { _key, code, language, filename } = Astro.props.node;
+const id = `code-${_key ?? crypto.randomUUID().slice(0, 8)}`;
+// `sh` y `text` son los nombres del Studio; Shiki los conoce como `shellscript` y `plaintext`.
+const lang = ({ sh: 'shellscript', text: 'plaintext' } as Record<string, string>)[language ?? ''] ?? language ?? 'plaintext';
+---
+
+{
+  code && (
+    <div class="code copyable">
+      {filename && <p class="filename mono">{filename}</p>}
+      <span class="copy">
+        <button
+          type="button"
+          class="copy-button"
+          aria-label={filename ? `Copiar el código de ${filename}` : 'Copiar el código'}
+          {...{ command: '--copy', commandfor: id }}
+        >
+          <span class="icon-copy">
+            <Icon name="copy" size={16} />
+          </span>
+          <span class="icon-check">
+            <Icon name="check" size={16} />
+          </span>
+        </button>
+        {/* El globo es también la región viva: vacío hasta que se copia. */}
+        <span class="tip" role="status" />
+      </span>
+      <Code
+        {id}
+        {code}
+        lang={lang as never}
+        themes={{ light: 'github-light', dark: 'github-dark' }}
+        defaultColor={false}
+        tabindex="0"
+      />
+    </div>
+  )
+}
+
+<style>
+  /* Sin hover (táctil): el botón queda siempre visible y en flujo, sin tapar el código. */
+  .code {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: start;
+    gap: 0.5rem;
+  }
+  .filename {
+    grid-column: 1 / -1;
+    font-size: var(--text-micro);
+    color: var(--fg-muted);
+  }
+  .code :global(pre) {
+    grid-column: 1;
+    grid-row: 2;
+  }
+  .copy {
+    position: relative;
+    grid-column: 2;
+    grid-row: 2;
+  }
+  .copy-button {
+    display: grid;
+    place-items: center;
+    min-inline-size: 2.25rem;
+    min-block-size: 2.25rem;
+    background: var(--surface);
+    border: 1px solid var(--line-strong);
+    border-radius: var(--radius);
+    color: var(--fg-secondary);
+    cursor: pointer;
+  }
+  .copy-button:hover {
+    color: var(--fg);
+    border-color: var(--brand);
+  }
+  /* No solo color: el icono cambia de «copiar» a «check». */
+  .icon-check,
+  .copy-button[data-copied] .icon-copy {
+    display: none;
+  }
+  .copy-button[data-copied] .icon-check {
+    display: block;
+    color: var(--link);
+  }
+  .copy-button[data-failed] {
+    border-style: dashed;
+  }
+  /* Se oculta con opacity: con display/visibility el lector de pantalla no lo anunciaría. */
+  .tip {
+    position: absolute;
+    inset-block-start: 50%;
+    inset-inline-end: calc(100% + 0.5rem);
+    translate: 0 -50%;
+    padding: 0.2rem 0.5rem;
+    background: var(--fg);
+    color: var(--canvas);
+    border-radius: var(--radius);
+    font-size: var(--text-micro);
+    white-space: nowrap;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.15s ease;
+  }
+  .copy-button:is([data-copied], [data-failed]) + .tip {
+    opacity: 1;
+  }
+
+  /* Con hover: el botón flota sobre el bloque y aparece al pasar el cursor o con el foco. */
+  @media (hover: hover) {
+    .code {
+      display: block;
+      position: relative;
+    }
+    .filename {
+      margin-bottom: 0.5rem;
+    }
+    .copy {
+      position: absolute;
+      inset-block-end: 0.5rem;
+      inset-inline-end: 0.5rem;
+    }
+    .copy-button {
+      opacity: 0;
+      transition: opacity 0.15s ease;
+    }
+    .code:hover .copy-button,
+    .code:focus-within .copy-button,
+    .copy-button:focus-visible,
+    .copy-button[data-copied],
+    .copy-button[data-failed] {
+      opacity: 1;
+    }
+  }
+</style>
+
+<script>
+  type CommandEvent = Event & { command: string; source: Element | null };
+
+  const timers = new WeakMap<Element, ReturnType<typeof setTimeout>>();
+  let lastMessage = '';
+
+  function report(button: HTMLElement, ok: boolean) {
+    const tip = button.nextElementSibling;
+    if (!tip) return;
+    clearTimeout(timers.get(button));
+    button.removeAttribute('data-copied');
+    button.removeAttribute('data-failed');
+
+    // VoiceOver omite un mensaje idéntico al anterior: el espacio duro lo hace distinto sin leerse.
+    let message = ok ? 'Copiado' : 'No se pudo copiar';
+    if (message === lastMessage) message += ' ';
+    lastMessage = message;
+
+    tip.textContent = '';
+    button.setAttribute(ok ? 'data-copied' : 'data-failed', '');
+    requestAnimationFrame(() => (tip.textContent = message));
+    timers.set(
+      button,
+      setTimeout(() => {
+        button.removeAttribute('data-copied');
+        button.removeAttribute('data-failed');
+        tip.textContent = '';
+      }, 2000),
+    );
+  }
+
+  async function copy(button: HTMLElement, target: HTMLElement) {
+    const text = target.innerText.trim();
+    if (!text) return;
+    try {
+      await navigator.clipboard.writeText(text);
+      report(button, true);
+    } catch {
+      report(button, false);
+    }
+  }
+
+  if ('CommandEvent' in window) {
+    // Los eventos `command` no burbujean: se escuchan en fase de captura.
+    document.addEventListener(
+      'command',
+      (event) => {
+        const { command, source } = event as CommandEvent;
+        if (command === '--copy' && source instanceof HTMLElement && event.target instanceof HTMLElement) {
+          void copy(source, event.target);
+        }
+      },
+      true,
+    );
+  } else {
+    // Navegadores sin Invoker Commands: mismo marcado, resuelto con un click delegado.
+    document.addEventListener('click', (event) => {
+      const button = (event.target as Element).closest<HTMLElement>('button[command="--copy"]');
+      const target = button && document.getElementById(button.getAttribute('commandfor') ?? '');
+      if (button && target) void copy(button, target);
+    });
+  }
+</script>

@@ -1,0 +1,28 @@
+{
+  "name": "nachodev-studio",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Sanity Studio del blog de NachoDev.",
+  "scripts": {
+    "dev": "sanity dev",
+    "build": "sanity build",
+    "deploy": "sanity deploy",
+    "typecheck": "tsc --noEmit"
+  },
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "dependencies": {
+    "@sanity/code-input": "^7.3.16",
+    "@sanity/vision": "^6.24.0",
+    "react": "^19.2.2",
+    "react-dom": "^19.2.2",
+    "sanity": "^6.24.0",
+    "styled-components": "^6.6.0"
+  },
+  "devDependencies": {
+    "@types/react": "^19.2.0",
+    "typescript": "^5.9.3"
+  }
+}

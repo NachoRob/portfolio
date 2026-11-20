@@ -1,6 +1,7 @@
 import { defineCollection } from 'astro:content';
 import { glob } from 'astro/loaders';
 import { z } from 'astro/zod';
+import { sanityPosts } from './lib/sanity';
 
 /**
  * Casos de estudio técnicos.
@@ -37,6 +38,10 @@ const projects = defineCollection({
     }),
 });
 
+/**
+ * Enlaces a artículos publicados en otras plataformas (Medium, blog de D2B…).
+ * Los artículos propios se escriben en Sanity: ver la colección `posts`.
+ */
 const articles = defineCollection({
   loader: glob({ base: './src/content/articles', pattern: '**/[^_]*.{md,mdx}' }),
   schema: z.object({
@@ -55,4 +60,46 @@ const articles = defineCollection({
   }),
 });
 
-export const collections = { projects, articles };
+const topic = z.enum(['ai-engineering', 'agentes', 'backend', 'google-cloud', 'aeo']);
+
+const sanityImage = z.object({
+  url: z.url(),
+  width: z.number(),
+  height: z.number(),
+  alt: z.string().nullish(),
+  caption: z.string().nullish(),
+});
+
+/**
+ * Artículos escritos en Sanity Studio (carpeta /studio). Se leen en build.
+ * GROQ devuelve `null` en los campos vacíos: por eso `nullish` + valor por defecto.
+ */
+const posts = defineCollection({
+  loader: sanityPosts(),
+  schema: z.object({
+    title: z.string(),
+    description: z.string(),
+    pubDate: z.coerce.date(),
+    updatedDate: z.coerce.date().nullish(),
+    topic,
+    tags: z
+      .array(z.string())
+      .nullish()
+      .transform((v) => v ?? []),
+    lang: z
+      .enum(['es', 'en'])
+      .nullish()
+      .transform((v) => v ?? 'es'),
+    cover: sanityImage.nullish(),
+    /** Portable Text. Se renderiza con astro-portabletext. */
+    body: z
+      .array(z.looseObject({ _type: z.string(), _key: z.string().optional() }))
+      .nullish()
+      .transform((v) => v ?? []),
+    /** Publicado en otra plataforma: enlaza fuera y no genera página. */
+    url: z.url().nullish(),
+    source: z.enum(['medium', 'd2b', 'devto']).nullish(),
+  }),
+});
+
+export const collections = { projects, articles, posts };

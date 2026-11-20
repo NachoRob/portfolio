@@ -40,41 +40,33 @@
   --tile-contact-fg: var(--white);
 }
 
-/* ── Modo claro ── */
-:root,
-:root[data-theme='light'] {
-  --canvas: var(--gray-50);
-  --surface: var(--white);
-  --elevated: #e8effc; /* derivado: tinte de --blue */
-  --line: #e5e7eb;
-  --line-strong: #cbd5e1;
-  --fg: var(--navy); /* 16:1 sobre blanco */
-  --fg-secondary: var(--gray-700); /* 9.4:1 sobre #F3F4F6 */
-  --fg-muted: #4b5563; /* derivado: 7.6:1 sobre blanco */
-  --link: #1d4ed8; /* 6.7:1 */
-  --focus: var(--blue);
-  --solid-shadow: var(--navy); /* sombra desplazada de botones y tarjetas */
-  --dot: rgb(11 31 58 / 0.09);
-  --bar-border: transparent;
-  color-scheme: light;
-}
+/* ── Modo claro / oscuro ──
+   `color-scheme` sigue al sistema y cada token trae sus dos valores con
+   light-dark(claro, oscuro). El botón de la barra no toca clases: cambia
+   <meta name="color-scheme">, y estas dos reglas lo trasladan al CSS. */
+:root {
+  color-scheme: light dark;
 
-/* ── Modo oscuro ── */
-:root[data-theme='dark'] {
-  --canvas: var(--navy);
-  --surface: #132a4a; /* derivado: navy un paso más claro */
-  --elevated: #1b3863;
-  --line: #1f3a62;
-  --line-strong: #2c4f80;
-  --fg: var(--white);
-  --fg-secondary: #d6e2f3; /* 11:1 sobre surface */
-  --fg-muted: #a9bcd6; /* 7.5:1 sobre surface */
-  --link: var(--sky); /* 5.7:1 sobre surface */
-  --focus: var(--sky);
-  --solid-shadow: var(--white);
-  --dot: rgb(255 255 255 / 0.07);
-  --bar-border: #1f3a62;
-  color-scheme: dark;
+  &:has(> head > meta[name='color-scheme'][content='dark']) {
+    color-scheme: dark;
+  }
+  &:has(> head > meta[name='color-scheme'][content='light']) {
+    color-scheme: light;
+  }
+
+  --canvas: light-dark(var(--gray-50), var(--navy));
+  --surface: light-dark(var(--white), #132a4a); /* oscuro: navy un paso más claro */
+  --elevated: light-dark(#e8effc, #1b3863); /* claro: tinte de --blue */
+  --line: light-dark(#e5e7eb, #1f3a62);
+  --line-strong: light-dark(#cbd5e1, #2c4f80);
+  --fg: light-dark(var(--navy), var(--white)); /* claro: 16:1 sobre blanco */
+  --fg-secondary: light-dark(var(--gray-700), #d6e2f3); /* 9.4:1 sobre #F3F4F6 · 11:1 sobre surface */
+  --fg-muted: light-dark(#4b5563, #a9bcd6); /* 7.6:1 sobre blanco · 7.5:1 sobre surface */
+  --link: light-dark(#1d4ed8, var(--sky)); /* 6.7:1 · 5.7:1 sobre surface */
+  --focus: light-dark(var(--blue), var(--sky));
+  --solid-shadow: light-dark(var(--navy), var(--white)); /* sombra desplazada de botones y tarjetas */
+  --dot: light-dark(rgb(11 31 58 / 0.09), rgb(255 255 255 / 0.07));
+  --bar-border: light-dark(transparent, #1f3a62);
 }
 
 :root {
@@ -149,6 +141,12 @@ html {
 @media (prefers-reduced-motion: no-preference) {
   html {
     scroll-behavior: smooth;
+  }
+
+  /* Fundido entre páginas (inicio ↔ blog ↔ artículo). Mejora progresiva:
+     donde no hay soporte, la navegación es la de siempre. */
+  @view-transition {
+    navigation: auto;
   }
 }
 
@@ -346,6 +344,7 @@ p {
 .prose {
   color: var(--fg-secondary);
   line-height: 1.75;
+  overflow-wrap: break-word; /* URLs largas no desbordan la columna */
 }
 .prose > * + * {
   margin-top: 1.1em;
@@ -432,4 +431,42 @@ p {
 .prose td {
   color: var(--fg);
   font-variant-numeric: tabular-nums;
+}
+
+/* Artículos del blog: línea de lectura de ~80 caracteres. Código, tablas e
+   imágenes siguen usando el ancho completo de la columna. */
+.prose.article > :is(p, ul, ol, blockquote) {
+  max-inline-size: 65ch;
+}
+.prose blockquote {
+  padding-left: 1.125rem;
+  border-left: 3px solid var(--brand);
+  color: var(--fg);
+  text-wrap: pretty;
+}
+.prose hr {
+  border: 0;
+  border-top: 1px solid var(--line-strong);
+  margin-block: 2.5em;
+}
+.prose figure {
+  margin-block: 2em;
+}
+.prose figure img {
+  width: 100%;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius);
+}
+.prose figcaption {
+  margin-top: 0.6rem;
+  font-size: var(--text-small);
+  color: var(--fg-muted);
+}
+.prose :is(h2, h3):focus {
+  outline: none; /* reciben foco al llegar desde la tabla de contenidos */
+}
+
+/* Shiki con dos temas: cada token trae --shiki-light y --shiki-dark. */
+.prose .astro-code span {
+  color: light-dark(var(--shiki-light), var(--shiki-dark));
 }

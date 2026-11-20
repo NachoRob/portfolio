@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://nachorob.github.io/portfolio/sitemap-index.xml
+Sitemap: https://nachorobles.dev/sitemap-index.xml

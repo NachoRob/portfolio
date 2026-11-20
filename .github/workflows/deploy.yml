@@ -7,6 +7,11 @@ on:
   push:
     branches: [main]
   workflow_dispatch:
+  # Sanity publica un artículo → webhook → POST /repos/NachoRob/portfolio/dispatches
+  # con {"event_type": "sanity-publish"}. El contenido se lee en build, así que
+  # cada publicación necesita un despliegue nuevo. Ver README, «Blog con Sanity».
+  repository_dispatch:
+    types: [sanity-publish]
 
 permissions:
   contents: read

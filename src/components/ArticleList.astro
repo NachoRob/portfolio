@@ -1,0 +1,79 @@
+---
+import Icon from '@/components/ui/Icon.astro';
+import { articleTopics } from '@/lib/taxonomy';
+import { formatDate, sources, type ArticleItem } from '@/lib/articles';
+
+interface Props {
+  articles: ArticleItem[];
+}
+
+const { articles } = Astro.props;
+---
+
+<ul class="list">
+  {
+    articles.map((a) => (
+      <li>
+        <a
+          href={a.href}
+          class="tile"
+          lang={a.lang}
+          {...(a.external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+        >
+          <span class="tile-icon">
+            <Icon name="file-text" size={22} />
+          </span>
+          <span class="body">
+            <span class="tile-title">{a.title}</span>
+            <span class="tile-text" lang="es">
+              {a.description}
+            </span>
+            <span class="tile-meta" lang="es">
+              <span>{sources[a.source]}</span>
+              <time datetime={a.pubDate.toISOString()}>{formatDate(a.pubDate)}</time>
+              <span>{articleTopics[a.topic]}</span>
+              {a.lang === 'en' && <span>En inglés</span>}
+            </span>
+          </span>
+          <Icon name={a.external ? 'arrow-up-right' : 'arrow-right'} size={20} class="arrow" />
+          {a.external && (
+            <span class="sr-only" lang="es">
+              (se abre en {sources[a.source]}, en una pestaña nueva)
+            </span>
+          )}
+        </a>
+      </li>
+    ))
+  }
+</ul>
+
+<style>
+  .list {
+    display: grid;
+    gap: 0.875rem;
+  }
+  /* Artículos: tile blanco con texto navy (16:1) en ambos modos. */
+  .tile {
+    align-items: flex-start;
+    --tile-bg: var(--white);
+    --tile-fg: var(--navy);
+  }
+  .body {
+    flex: 1;
+    min-width: 0;
+  }
+  .tile-text {
+    margin-top: 0.2rem;
+  }
+  .tile-icon {
+    margin-top: 0.1rem;
+  }
+  .tile :global(.arrow) {
+    flex: none;
+    align-self: center;
+    transition: transform 0.12s ease;
+  }
+  .tile:hover :global(.arrow) {
+    transform: translate(2px, -2px);
+  }
+</style>

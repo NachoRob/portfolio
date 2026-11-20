@@ -10,7 +10,7 @@ const text: Record<string, string> = {
   instagram: 'Contenido que creo y comparto',
 };
 const order = ['mail', 'linkedin', 'github', 'instagram'];
-const links = [...socials].sort((a, b) => order.indexOf(a.icon) - order.indexOf(b.icon));
+const links = socials.toSorted((a, b) => order.indexOf(a.icon) - order.indexOf(b.icon));
 ---
 
 <section id="contacto" aria-labelledby="contacto-title" class="page block">

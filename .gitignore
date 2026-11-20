@@ -76,3 +76,13 @@ functions/node_modules/
 # ASTRO
 # ───────────────────────────────
 .astro/
+
+# ───────────────────────────────
+# CLAUDE CODE (config local, puede contener datos personales)
+# ───────────────────────────────
+.claude/
+
+# ───────────────────────────────
+# SANITY STUDIO
+# ───────────────────────────────
+.sanity/
