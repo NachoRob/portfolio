@@ -1,0 +1,94 @@
+---
+import Base from '@/layouts/Base.astro';
+import ArticleList from '@/components/ArticleList.astro';
+import { getArticles } from '@/lib/articles';
+import { href } from '@/lib/url';
+import { site } from '@/data/site';
+
+const articles = await getArticles();
+const description =
+  'Artículos de Ignacio Robles sobre AI engineering, agentes, visibilidad de marca en LLMs, analítica y Google Cloud.';
+
+const pageUrl = new URL(Astro.url.pathname, Astro.site).href;
+const homeUrl = new URL(href(), Astro.site).href;
+
+const jsonLd = [
+  {
+    '@type': 'Blog',
+    '@id': `${pageUrl}#blog`,
+    name: `Blog de ${site.brand}`,
+    description,
+    url: pageUrl,
+    inLanguage: 'es',
+    author: { '@id': `${homeUrl}#person` },
+  },
+  {
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: site.brand, item: homeUrl },
+      { '@type': 'ListItem', position: 2, name: 'Blog', item: pageUrl },
+    ],
+  },
+];
+---
+
+<Base title={`Blog · ${site.brand}`} {description} {jsonLd}>
+  <div class="page wrap">
+    <nav aria-label="Ruta" class="crumbs mono">
+      <ol>
+        <li><a href={href()}>inicio</a></li>
+        <li aria-hidden="true">/</li>
+        <li aria-current="page">blog</li>
+      </ol>
+    </nav>
+
+    <header>
+      <h1>Blog</h1>
+      <p class="lead">
+        Lo que aprendo midiendo y construyendo con IA: visibilidad de marca en LLMs, analítica y agentes.
+      </p>
+    </header>
+
+    {
+      articles.length > 0 ? (
+        <ArticleList {articles} />
+      ) : (
+        <p class="empty">Todavía no hay artículos publicados.</p>
+      )
+    }
+  </div>
+</Base>
+
+<style>
+  .wrap {
+    padding-top: 2rem;
+  }
+  .crumbs ol {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    font-size: var(--text-micro);
+    color: var(--fg-muted);
+  }
+  .crumbs a:hover {
+    color: var(--fg);
+  }
+  .crumbs [aria-current] {
+    color: var(--fg-secondary);
+  }
+  header {
+    margin-block: 2rem;
+  }
+  h1 {
+    font-size: var(--text-h1);
+    font-weight: 800;
+  }
+  .lead {
+    margin-top: 1rem;
+    font-size: var(--text-lead);
+    color: var(--fg-secondary);
+  }
+  .empty {
+    color: var(--fg-muted);
+  }
+</style>

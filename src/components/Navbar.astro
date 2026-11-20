@@ -22,10 +22,10 @@ const home = href();
     </ul>
 
     <div class="actions">
-    <button type="button" class="icon-btn theme" aria-pressed="false" data-theme-toggle>
-      <span class="moon"><Icon name="moon" size={18} /></span>
-      <span class="sun"><Icon name="sun" size={18} /></span>
-      <span class="sr-only">Modo oscuro</span>
+    {/* Los dos estados van en el marcado; el CSS oculta el inactivo (también para lectores de pantalla). */}
+    <button type="button" class="icon-btn theme" data-theme-toggle>
+      <span class="moon"><Icon name="moon" size={18} /><span class="sr-only">Cambiar a modo oscuro</span></span>
+      <span class="sun"><Icon name="sun" size={18} /><span class="sr-only">Cambiar a modo claro</span></span>
     </button>
     <button type="button" class="icon-btn toggle" aria-expanded="false" aria-controls="menu-movil" data-menu-toggle>
       <span data-icon-open><Icon name="menu" size={20} /></span>
@@ -56,17 +56,35 @@ const home = href();
     background: var(--navy);
     color: var(--on-navy);
     border-bottom: 1px solid var(--bar-border);
+    /* En las transiciones entre páginas la barra se queda quieta; solo funde el contenido. */
+    view-transition-name: site-nav;
   }
   .actions {
     display: flex;
     gap: 0.5rem;
   }
-  .sun,
-  :global([data-theme='dark']) .moon {
+  /* Luna en claro, sol en oscuro. «Oscuro» = el meta lo fija, o el sistema lo
+     prefiere y el meta no fija claro. No depende de clases puestas con JS. */
+  .sun {
     display: none;
   }
-  :global([data-theme='dark']) .sun {
-    display: block;
+  :global(:root:has(> head > meta[name='color-scheme'][content='dark'])) {
+    & .moon {
+      display: none;
+    }
+    & .sun {
+      display: block;
+    }
+  }
+  @media (prefers-color-scheme: dark) {
+    :global(:root:not(:has(> head > meta[name='color-scheme'][content='light']))) {
+      & .moon {
+        display: none;
+      }
+      & .sun {
+        display: block;
+      }
+    }
   }
   .inner {
     display: flex;
@@ -139,17 +157,26 @@ const home = href();
 </style>
 
 <script>
+  // Modo claro/oscuro. Sin valor guardado se sigue al sistema; solo se guarda
+  // el modo cuando difiere del sistema, para no fijarlo sin que se note.
+  const KEY = 'color-scheme';
   const themeBtn = document.querySelector<HTMLButtonElement>('[data-theme-toggle]');
-  if (themeBtn) {
-    const root = document.documentElement;
-    const sync = () => themeBtn.setAttribute('aria-pressed', String(root.dataset.theme === 'dark'));
-    sync();
+  const scheme = document.querySelector<HTMLMetaElement>('meta[name="color-scheme"]');
+  if (themeBtn && scheme) {
+    const system = () => (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
     themeBtn.addEventListener('click', () => {
-      root.dataset.theme = root.dataset.theme === 'dark' ? 'light' : 'dark';
+      const shown = scheme.content === 'light' || scheme.content === 'dark' ? scheme.content : system();
+      const target = shown === 'dark' ? 'light' : 'dark';
+      const override = target === system() ? null : target;
+      scheme.content = override ?? 'light dark';
       try {
-        localStorage.setItem('theme', root.dataset.theme);
+        if (override) localStorage.setItem(KEY, override);
+        else localStorage.removeItem(KEY);
       } catch {}
-      sync();
+    });
+    // El modo pudo cambiar en otra pestaña.
+    window.addEventListener('storage', (e) => {
+      if (e.key === KEY) scheme.content = e.newValue ?? 'light dark';
     });
   }
 

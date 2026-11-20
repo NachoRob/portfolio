@@ -21,6 +21,8 @@ interface Props {
   /** Datos estructurados adicionales (JSON-LD) específicos de la página. */
   jsonLd?: Record<string, unknown>[];
   noindex?: boolean;
+  /** Imagen para compartir (URL absoluta). Por defecto, la fotografía. */
+  image?: { url: string; alt: string };
 }
 
 const {
@@ -29,6 +31,7 @@ const {
   ogType = 'website',
   jsonLd = [],
   noindex = false,
+  image,
 } = Astro.props;
 
 const canonical = new URL(Astro.url.pathname, Astro.site).href;
@@ -84,16 +87,15 @@ const graph = {
 <html lang={site.lang}>
   <head>
     <meta charset="utf-8" />
+    <!-- `light dark` = seguir al sistema. El botón de la barra fija `light` o `dark`;
+         el CSS lee este meta (global.css), así que sin JS el sitio sigue al sistema. -->
+    <meta name="color-scheme" content="light dark" />
     <script is:inline>
-      // Modo claro/oscuro antes del primer pintado: preferencia guardada o la del sistema.
-      (function () {
-        var t;
-        try {
-          t = localStorage.getItem('theme');
-        } catch (e) {}
-        if (t !== 'light' && t !== 'dark') t = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-        document.documentElement.dataset.theme = t;
-      })();
+      // Antes del primer pintado: aplica el modo guardado, si lo hay.
+      try {
+        document.querySelector('meta[name="color-scheme"]').content =
+          localStorage.getItem('color-scheme') ?? 'light dark';
+      } catch (e) {}
     </script>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{title}</title>
@@ -102,9 +104,9 @@ const graph = {
     {noindex && <meta name="robots" content="noindex" />}
     <meta name="author" content={site.name} />
     <meta name="theme-color" content="#0b1f3a" />
-    <meta name="color-scheme" content="light dark" />
     <link rel="icon" href={href('favicon.svg')} type="image/svg+xml" />
     <link rel="sitemap" href={href('sitemap-index.xml')} />
+    <link rel="alternate" type="application/rss+xml" title={`Blog de ${site.brand}`} href={href('rss.xml')} />
 
     <link rel="preload" href={montserratLatin} as="font" type="font/woff2" crossorigin />
     <link rel="preload" href={interLatin} as="font" type="font/woff2" crossorigin />
@@ -115,12 +117,12 @@ const graph = {
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonical} />
-    <meta property="og:image" content={ogImageUrl} />
-    <meta property="og:image:alt" content={`Fotografía de ${site.name}`} />
+    <meta property="og:image" content={image?.url ?? ogImageUrl} />
+    <meta property="og:image:alt" content={image?.alt || `Fotografía de ${site.name}`} />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={description} />
-    <meta name="twitter:image" content={ogImageUrl} />
+    <meta name="twitter:image" content={image?.url ?? ogImageUrl} />
 
     <script type="application/ld+json" set:html={JSON.stringify(graph)} />
   </head>

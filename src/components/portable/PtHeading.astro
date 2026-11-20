@@ -1,0 +1,26 @@
+---
+/**
+ * h2/h3 del cuerpo con `id` (ver withAnchors en lib/portable.ts).
+ * tabindex="-1": al llegar desde la tabla de contenidos el foco se mueve al
+ * título y el teclado continúa desde ahí.
+ */
+import type { BlockProps } from 'astro-portabletext/types';
+
+type Props = BlockProps;
+
+const { node } = Astro.props;
+const anchor = (node as { anchor?: string }).anchor;
+const Tag = node.style === 'h3' ? 'h3' : 'h2';
+---
+
+{
+  anchor ? (
+    <Tag id={anchor} tabindex="-1">
+      <slot />
+    </Tag>
+  ) : (
+    <Tag>
+      <slot />
+    </Tag>
+  )
+}

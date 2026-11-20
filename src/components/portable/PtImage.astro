@@ -1,0 +1,28 @@
+---
+/** Imagen del cuerpo servida desde el CDN de Sanity, con dimensiones para no mover el layout. */
+import { sanityImage, sanitySrcset } from '@/lib/sanity';
+
+interface Props {
+  node: { url?: string | null; width?: number | null; height?: number | null; alt?: string | null; caption?: string | null };
+}
+
+const { url, width, height, alt, caption } = Astro.props.node;
+---
+
+{
+  url && width && height && (
+    <figure>
+      <img
+        src={sanityImage(url, Math.min(width, 1100))}
+        srcset={sanitySrcset(url, width)}
+        sizes="(min-width: 48rem) 46rem, 92vw"
+        {width}
+        {height}
+        alt={alt ?? ''}
+        loading="lazy"
+        decoding="async"
+      />
+      {caption && <figcaption>{caption}</figcaption>}
+    </figure>
+  )
+}

@@ -1,0 +1,92 @@
+---
+/**
+ * Tabla de contenidos con scrollspy.
+ * CSS nativo (`scroll-target-group` + `:target-current`) donde existe;
+ * IntersectionObserver como respaldo. `aria-current` se sincroniza en ambos casos.
+ */
+import type { Heading } from '@/lib/portable';
+
+interface Props {
+  headings: Heading[];
+}
+
+const { headings } = Astro.props;
+---
+
+<nav class="toc" aria-labelledby="toc-title" data-toc>
+  <p id="toc-title" class="title mono">En este artículo</p>
+  <ol>
+    {
+      headings.map((h) => (
+        <li class:list={{ sub: h.level === 3 }}>
+          <a href={`#${h.id}`}>{h.text}</a>
+        </li>
+      ))
+    }
+  </ol>
+</nav>
+
+<style>
+  .title {
+    font-size: var(--text-micro);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--fg-muted);
+  }
+  ol {
+    display: grid;
+    margin-top: 0.75rem;
+    /* El navegador sigue qué destino de estos enlaces está a la vista. */
+    scroll-target-group: auto;
+  }
+  a {
+    display: block;
+    padding: 0.3rem 0 0.3rem 0.875rem;
+    border-left: 2px solid var(--line-strong);
+    font-size: var(--text-small);
+    line-height: 1.4;
+    color: var(--fg-secondary);
+  }
+  .sub a {
+    padding-left: 1.75rem;
+  }
+  a:hover {
+    color: var(--fg);
+  }
+  /* :is() es tolerante: sin él, un navegador que no conoce :target-current descarta toda la regla.
+     Activo = borde de marca + peso, no solo color. */
+  a:is(:target-current, .target-current) {
+    border-left-color: var(--brand);
+    color: var(--fg);
+    font-weight: 600;
+  }
+</style>
+
+<script>
+  const toc = document.querySelector<HTMLElement>('[data-toc]');
+  if (toc) {
+    const links = [...toc.querySelectorAll<HTMLAnchorElement>('a[href^="#"]')];
+    const setCurrent = (current: Element | null) =>
+      links.forEach((link) => link.setAttribute('aria-current', link === current ? 'true' : 'false'));
+
+    if (CSS.supports('scroll-target-group: auto')) {
+      // El estilo lo pone el CSS; aquí solo se refleja el estado para lectores de pantalla.
+      const sync = () => setCurrent(toc.querySelector('a:target-current'));
+      sync();
+      document.addEventListener('scrollend', sync);
+    } else {
+      const targets = links.flatMap((link) => document.getElementById(decodeURIComponent(link.hash.slice(1))) ?? []);
+      // Activo = el último título que ya pasó el tercio superior de la ventana.
+      const update = () => {
+        const line = window.innerHeight / 3;
+        const index = targets.findLastIndex((el) => el.getBoundingClientRect().top <= line);
+        const current = links[Math.max(index, 0)] ?? null;
+        links.forEach((link) => link.classList.toggle('target-current', link === current));
+        setCurrent(current);
+      };
+      const observer = new IntersectionObserver(update, { rootMargin: '0px 0px -66% 0px', threshold: [0, 1] });
+      targets.forEach((el) => observer.observe(el));
+      update();
+    }
+  }
+</script>
